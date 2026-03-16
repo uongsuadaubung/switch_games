@@ -1,0 +1,33 @@
+[package]
+name = "switch-games"
+version = "0.1.0"
+description = "Desktop app quản lý thư viện game Nintendo Switch, lấy dữ liệu từ GitHub"
+authors = ["uongsuadaubung"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "switch_games_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-opener = "2"
+tauri-plugin-fs = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+
+[profile.release]
+opt-level = "z"       # Tối ưu cho dung lượng nhỏ nhất
+lto = true            # Link-Time Optimization — giảm size đáng kể
+codegen-units = 1     # Biên dịch 1 unit → optimize tốt hơn (chậm hơn khi build)
+panic = "abort"       # Bỏ unwinding → giảm ~10% binary size
+strip = true          # Strip debug symbols

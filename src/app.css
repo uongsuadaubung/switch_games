@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0f0f13;
+  --bg-secondary: #1a1a24;
+  --bg-card: #1e1e2a;
+  --bg-hover: #252535;
+  --border: #2e2e42;
+  --accent: #e4000f;
+  --accent-hover: #ff1a26;
+  --accent-dim: rgba(228, 0, 15, 0.15);
+  --text-primary: #f0f0f8;
+  --text-secondary: #9090aa;
+  --text-muted: #606078;
+  --green: #00c875;
+  --yellow: #f5c518;
+  --blue: #5b9cf6;
+  --purple: #a78bfa;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #404060;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  border: none;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+input {
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
