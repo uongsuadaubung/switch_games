@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]   # Trigger khi publish release trên GitHub UI
 
 jobs:
   build-windows:
@@ -33,12 +32,10 @@ jobs:
       - name: Build
         run: npm run tauri build
 
-      - name: Create GitHub Release & upload exe
+      - name: Upload exe to existing release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} `
-            --title "Switch Games Manager ${{ github.ref_name }}" `
-            --draft `
-            --notes "Release ${{ github.ref_name }}" `
-            "src-tauri/target/release/switch-games.exe"
+          gh release upload ${{ github.event.release.tag_name }} `
+            "src-tauri/target/release/switch-games.exe" `
+            --clobber

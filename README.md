@@ -92,6 +92,20 @@ switch_games/
 
 ---
 
+## ⚠️ Cảnh báo Windows SmartScreen
+
+Vì app chưa có chứng chỉ ký số, Windows sẽ hiện cảnh báo khi mở lần đầu. Đây là bình thường — chỉ cần bỏ qua:
+
+**Bước 1:** Click **"More info"**
+
+![SmartScreen bước 1](screenshot/Screenshot%202026-03-16%20141356.png)
+
+**Bước 2:** Click **"Run anyway"**
+
+![SmartScreen bước 2](screenshot/Screenshot%202026-03-16%20141503.png)
+
+---
+
 ## License
 
 [MIT](LICENSE)
