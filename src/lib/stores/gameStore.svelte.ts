@@ -1,10 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Game } from "$lib/types";
 import { VERSION_JSON_URL, GAMES_JSON_URL } from "$lib/constants";
+import { IS_BROWSER } from "$lib/environment";
 
 // ── Cache helpers (Tauri ↔ disk) ──────────────────────────────────────────────
 
 async function cacheReadHash(): Promise<string | null> {
+  if (IS_BROWSER) return null;
   try {
     return await invoke<string | null>("read_version_hash");
   } catch (e) {
@@ -14,6 +16,7 @@ async function cacheReadHash(): Promise<string | null> {
 }
 
 async function cacheWriteHash(hash: string): Promise<void> {
+  if (IS_BROWSER) return;
   try {
     await invoke("write_version_hash", { hash });
   } catch (e) {
@@ -22,6 +25,7 @@ async function cacheWriteHash(hash: string): Promise<void> {
 }
 
 async function cacheReadGames(): Promise<Game[] | null> {
+  if (IS_BROWSER) return null;
   try {
     const raw = await invoke<string | null>("read_games_cache");
     if (!raw) return null;
@@ -33,6 +37,7 @@ async function cacheReadGames(): Promise<Game[] | null> {
 }
 
 async function cacheWriteGames(games: Game[]): Promise<void> {
+  if (IS_BROWSER) return;
   try {
     await invoke("write_games_cache", { data: JSON.stringify(games) });
   } catch (e) {
@@ -463,7 +468,11 @@ function createGameStore() {
 
   async function openUrl(url: string) {
     if (!url || url.trim() === "") return;
-    await invoke("open_url", { url });
+    if (IS_BROWSER) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else {
+      await invoke("open_url", { url });
+    }
   }
 
   async function openAllLinks(game: Game) {
@@ -474,8 +483,16 @@ function createGameStore() {
       ...game.links.viet_hoa,
     ]
       .map((l) => l.url || l.filename)
-      .filter(Boolean);
-    await invoke("open_urls", { urls });
+      .filter((u): u is string => Boolean(u));
+    if (IS_BROWSER) {
+      // Phải mở đồng bộ trong cùng call stack của user gesture.
+      // setTimeout sẽ đưa callback ra ngoài gesture context → browser block.
+      for (const url of urls) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    } else {
+      await invoke("open_urls", { urls });
+    }
   }
 
   // ── Expose ─────────────────────────────────────────────────────────────────

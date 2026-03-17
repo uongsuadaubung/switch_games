@@ -1,5 +1,6 @@
 import { getVersion } from "@tauri-apps/api/app";
 import { GITHUB_RELEASES_API } from "$lib/constants";
+import { IS_BROWSER } from "$lib/environment";
 
 interface ReleaseInfo {
   latestVersion: string;
@@ -36,6 +37,7 @@ function createUpdateStore() {
   let dismissed = $state(false);
 
   async function checkForUpdate(): Promise<void> {
+    if (IS_BROWSER) return; // getVersion() là Tauri API, không có trên browser
     try {
       const [appVersion, response] = await Promise.all([
         getVersion(),
