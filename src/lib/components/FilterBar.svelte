@@ -102,6 +102,37 @@
       >
     {/if}
   {/if}
+
+  <!-- Toggle chế độ hiển thị -->
+  <div class="view-toggle">
+    <button
+      class="view-btn"
+      class:active={store.viewMode === "table"}
+      onclick={() => (store.viewMode = "table")}
+      title="Chế độ danh sách"
+      aria-label="List view"
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+        <rect x="0" y="0" width="14" height="2" rx="1"/>
+        <rect x="0" y="5" width="14" height="2" rx="1"/>
+        <rect x="0" y="10" width="14" height="2" rx="1"/>
+      </svg>
+    </button>
+    <button
+      class="view-btn"
+      class:active={store.viewMode === "grid"}
+      onclick={() => (store.viewMode = "grid")}
+      title="Chế độ lưới"
+      aria-label="Grid view"
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+        <rect x="0"  y="0"  width="6" height="6" rx="1"/>
+        <rect x="8"  y="0"  width="6" height="6" rx="1"/>
+        <rect x="0"  y="8"  width="6" height="6" rx="1"/>
+        <rect x="8"  y="8"  width="6" height="6" rx="1"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <style>
@@ -109,12 +140,13 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 8px 12px;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
     flex-wrap: wrap;
     min-height: 52px;
+    position: relative;
   }
 
   /* ── Selection toolbar ── */
@@ -290,10 +322,34 @@
     font-size: 12px;
     padding: 4px 8px;
     border-radius: 6px;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+    border: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
   }
-  .clear-filters:hover {
-    color: var(--text-primary);
+  .clear-filters:hover { color: var(--accent); border-color: rgba(205,72,51,0.3); }
+
+  /* View mode toggle */
+  .view-toggle {
+    margin-left: auto;
+    display: flex;
+    gap: 2px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    flex-shrink: 0;
   }
+  .view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 26px;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    transition: background 0.12s, color 0.12s;
+  }
+  .view-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+  .view-btn.active { background: var(--accent); color: white; }
 </style>

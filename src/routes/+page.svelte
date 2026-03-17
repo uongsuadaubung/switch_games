@@ -5,6 +5,7 @@
   import LoadingScreen from "$lib/components/LoadingScreen.svelte";
   import FilterBar from "$lib/components/FilterBar.svelte";
   import GameTable from "$lib/components/GameTable.svelte";
+  import GameGrid from "$lib/components/GameGrid.svelte";
   import LinksPanel from "$lib/components/LinksPanel.svelte";
 
   onMount(store.fetchGames);
@@ -54,7 +55,11 @@
     {:else}
       <FilterBar />
       <div class="table-panel-layout" class:has-panel={store.showLinksPanel}>
-        <GameTable />
+        {#if store.viewMode === "grid"}
+          <GameGrid />
+        {:else}
+          <GameTable />
+        {/if}
         <LinksPanel />
       </div>
     {/if}
@@ -81,7 +86,8 @@
     overflow: hidden;
     min-height: 0;
   }
-  .table-panel-layout.has-panel :global(.table-container) {
+  .table-panel-layout.has-panel :global(.table-container),
+  .table-panel-layout.has-panel :global(.grid-container) {
     flex: 0 0 auto;
     width: 62%;
   }
