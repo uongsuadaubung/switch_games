@@ -15,7 +15,7 @@ const config = {
       fallback: "index.html",
     }),
     paths: {
-      base: isGitHubPages ? "/switch_games_web" : "",
+      base: isGitHubPages ? "/switch-games-web" : "",
     },
   },
 };

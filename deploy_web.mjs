@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const rootDir = __dirname;
 const buildDir = path.join(rootDir, 'build');
-const remoteUrl = 'https://github.com/uongsuadaubung/switch_games_web.git';
+const remoteUrl = 'https://github.com/uongsuadaubung/switch-games-web.git';
 const gitUser = 'uongsuadaubung';
 const gitEmail = 'manhkien13041997@gmail.com';
 const branch = 'main';
@@ -69,7 +69,7 @@ async function deploy() {
         }
 
         console.log('\n✅ Successfully deployed to GitHub!');
-        console.log(`🔗 https://uongsuadaubung.github.io/switch_games_web/`);
+        console.log(`🔗 https://uongsuadaubung.github.io/switch-games-web/`);
 
         // Bước 4: Dọn dẹp
         console.log('\n🧹 Cleaning up build folder...');
