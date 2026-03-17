@@ -23,3 +23,5 @@ src-tauri/target/
 # IDE — VS Code (local settings, not shared)
 .vscode/settings.json
 .vscode/*.code-workspace
+
+.agent/
