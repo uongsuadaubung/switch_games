@@ -4,6 +4,11 @@
 
   // Columns: [checkbox | # | Tên game | Kích thước | Thể loại | Links]
   const COL_TEMPLATE = "36px 44px 2fr 1fr 1fr 1fr";
+
+  function sortIcon(key: "name" | "size" | "genres" | "links"): string {
+    if (store.sortKey !== key) return "";
+    return store.sortDir === "asc" ? " ▲" : " ▼";
+  }
 </script>
 
 <div class="table-container">
@@ -19,8 +24,12 @@
       />
     </div>
     <div class="th">#</div>
-    <div class="th">Tên game</div>
-    <div class="th">Kích thước</div>
+    <button class="th th-sort" class:active={store.sortKey === "name"} onclick={() => store.toggleSort("name")}>
+      Tên game{sortIcon("name")}
+    </button>
+    <button class="th th-sort" class:active={store.sortKey === "size"} onclick={() => store.toggleSort("size")}>
+      Kích thước{sortIcon("size")}
+    </button>
     <div class="th">Thể loại</div>
     <div class="th">Links</div>
   </div>
@@ -148,9 +157,28 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
   }
   .th-check {
     padding: 10px 8px 10px 14px;
+  }
+  /* Sortable header button */
+  .th-sort {
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    user-select: none;
+    border-radius: 4px;
+    transition: color 0.12s, background 0.12s;
+  }
+  .th-sort:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .th-sort.active {
+    color: var(--accent);
   }
 
   /* ── Row ── */
