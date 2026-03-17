@@ -45,72 +45,6 @@ async function cacheWriteGames(games: Game[]): Promise<void> {
   }
 }
 
-// ── New game detection ────────────────────────────────────────────────────────
-
-const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-/**
- * Game hết "mới" khi CẢ HAI điều kiện đều đúng:
- *  - User đã click vào (is_new_seen = true)
- *  - Đã qua ít nhất 7 ngày kể từ is_new_since
- */
-function shouldKeepNew(game: Game): boolean {
-  if (!game.is_new) return false;
-  if (!game.is_new_seen) return true; // chưa click → luôn giữ
-  const since = game.is_new_since
-    ? new Date(game.is_new_since).getTime()
-    : Date.now();
-  return Date.now() - since < ONE_WEEK_MS; // chưa đủ 7 ngày → giữ
-}
-
-/**
- * So sánh fresh games với cache cũ:
- * - Game chưa có trong cache        → is_new = true, ghi timestamp
- * - Game đã có + còn "mới" (chưa expire) → giữ nguyên new metadata
- * - Game đã có + đã expire          → bỏ is_new
- * Luôn giữ nguyên is_hidden và is_favorite từ cache cũ
- */
-function markNewGames(
-  fresh: Game[],
-  cached: Game[]
-): { games: Game[]; newCount: number } {
-  // Dùng Map để O(1) lookup và giữ đủ metadata
-  const cachedMap = new Map(cached.map((g) => [g.game_id || g.name, g]));
-  const now = new Date().toISOString();
-
-  const games = fresh.map((g) => {
-    const key = g.game_id || g.name;
-    const old = cachedMap.get(key);
-
-    if (!old) {
-      // Game hoàn toàn mới
-      return { ...g, is_new: true, is_new_since: now, is_new_seen: false };
-    }
-
-    // Giữ toàn bộ metadata do user tạo ra (không có trong data gốc)
-    const userMeta: Partial<Game> = {};
-    if (old.is_hidden)          userMeta.is_hidden   = true;
-    if (old.is_favorite)        userMeta.is_favorite = true;
-    if (old.note)               userMeta.note        = old.note;
-
-    if (old.is_new && shouldKeepNew(old)) {
-      // Vẫn còn trong thời gian "mới" → giữ nguyên metadata
-      return {
-        ...g,
-        ...userMeta,
-        is_new: true,
-        is_new_since: old.is_new_since,
-        is_new_seen: old.is_new_seen,
-      };
-    }
-
-    // Không mới hoặc đã expire
-    return { ...g, ...userMeta };
-  });
-
-  const newCount = games.filter((g) => g.is_new).length;
-  return { games, newCount };
-}
 
 // ── Store factory ─────────────────────────────────────────────────────────────
 
@@ -295,16 +229,6 @@ function createGameStore() {
     selectedGame = game;
     showLinksPanel = true;
     showYoutube = false;
-
-    // Đánh dấu đã xem → bắt đầu countdown 7 ngày
-    if (game.is_new && !game.is_new_seen) {
-      const updated: Game = { ...game, is_new_seen: true };
-      allGames = allGames.map((g) =>
-        gameKey(g) === gameKey(game) ? updated : g
-      );
-      selectedGame = updated;
-      cacheWriteGames(allGames); // fire-and-forget
-    }
   }
 
   function closePanel() {
@@ -440,17 +364,29 @@ function createGameStore() {
         throw new Error(`games.json HTTP ${gamesRes.status}`);
       const freshGames: Game[] = await gamesRes.json();
 
-      // ── 4. So sánh với cache để mark game mới, rồi lưu disk ───────────────
-      const markedGames = cachedGames
-        ? markNewGames(freshGames, cachedGames).games
+      // ── 4. Merge user metadata từ cache (is_hidden, is_favorite, note) ──────
+      const mergedGames = cachedGames
+        ? (() => {
+            const cachedMap = new Map(cachedGames.map((g) => [g.game_id || g.name, g]));
+            return freshGames.map((g) => {
+              const old = cachedMap.get(g.game_id || g.name);
+              if (!old) return g;
+              return {
+                ...g,
+                ...(old.is_hidden   ? { is_hidden: true }   : {}),
+                ...(old.is_favorite ? { is_favorite: true } : {}),
+                ...(old.note        ? { note: old.note }    : {}),
+              };
+            });
+          })()
         : freshGames;
 
       await Promise.all([
         cacheWriteHash(remoteHash),
-        cacheWriteGames(markedGames),
+        cacheWriteGames(mergedGames),
       ]);
 
-      allGames = markedGames;
+      allGames = mergedGames;
 
     } catch (e) {
       console.error("Fetch error:", e);
