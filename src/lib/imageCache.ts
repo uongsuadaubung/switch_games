@@ -34,7 +34,7 @@ export async function getCachedImageSrc(game: Game): Promise<string | null> {
   const key = imageKey(game);
 
   // ── 1. In-memory ────────────────────────────────────────────────
-  if (memCache.has(key)) return memCache.get(key)!;
+  if (memCache.has(key)) return memCache.get(key)!; // safe: .has() đã xác nhận key tồn tại
 
   // ── 2. Disk cache ───────────────────────────────────────────────
   try {

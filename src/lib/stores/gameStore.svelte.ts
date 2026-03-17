@@ -11,7 +11,8 @@ const GAMES_JSON_URL =
 async function cacheReadHash(): Promise<string | null> {
   try {
     return await invoke<string | null>("read_version_hash");
-  } catch {
+  } catch (e) {
+    console.warn("Không đọc được version hash từ disk:", e);
     return null;
   }
 }
@@ -29,7 +30,8 @@ async function cacheReadGames(): Promise<Game[] | null> {
     const raw = await invoke<string | null>("read_games_cache");
     if (!raw) return null;
     return JSON.parse(raw) as Game[];
-  } catch {
+  } catch (e) {
+    console.warn("Không đọc được games cache từ disk:", e);
     return null;
   }
 }
@@ -65,7 +67,7 @@ function shouldKeepNew(game: Game): boolean {
  * - Game chưa có trong cache        → is_new = true, ghi timestamp
  * - Game đã có + còn "mới" (chưa expire) → giữ nguyên new metadata
  * - Game đã có + đã expire          → bỏ is_new
- * Luôn giữ nguyên is_hidden từ cache cũ
+ * Luôn giữ nguyên is_hidden và is_favorite từ cache cũ
  */
 function markNewGames(
   fresh: Game[],
@@ -84,14 +86,17 @@ function markNewGames(
       return { ...g, is_new: true, is_new_since: now, is_new_seen: false };
     }
 
-    // Giữ is_hidden từ cache cũ
-    const hiddenMeta = old.is_hidden ? { is_hidden: true } : {};
+    // Giữ toàn bộ metadata do user tạo ra (không có trong data gốc)
+    const userMeta: Partial<Game> = {};
+    if (old.is_hidden)          userMeta.is_hidden   = true;
+    if (old.is_favorite)        userMeta.is_favorite = true;
+    if (old.note)               userMeta.note        = old.note;
 
     if (old.is_new && shouldKeepNew(old)) {
       // Vẫn còn trong thời gian "mới" → giữ nguyên metadata
       return {
         ...g,
-        ...hiddenMeta,
+        ...userMeta,
         is_new: true,
         is_new_since: old.is_new_since,
         is_new_seen: old.is_new_seen,
@@ -99,7 +104,7 @@ function markNewGames(
     }
 
     // Không mới hoặc đã expire
-    return { ...g, ...hiddenMeta };
+    return { ...g, ...userMeta };
   });
 
   const newCount = games.filter((g) => g.is_new).length;
@@ -126,10 +131,16 @@ function createGameStore() {
   let filterGenre   = $state("all");
   let filterHidden  = $state(false);
   let filterNew     = $state(false);
+  let filterFavorite = $state(false);
+
+  // Search input element ref (dùng cho keyboard shortcut Ctrl+F)
+  let searchInputEl = $state<HTMLInputElement | null>(null);
 
   // ── Derived ────────────────────────────────────────────────────────────────
   const hiddenCount    = $derived(allGames.filter((g) => g.is_hidden).length);
   const newGameCount   = $derived(allGames.filter((g) => g.is_new).length);
+  const favoriteCount  = $derived(allGames.filter((g) => g.is_favorite).length);
+  const vietHoaCount   = $derived(allGames.filter((g) => g.is_viet_hoa).length);
   const checkedCount   = $derived(checkedKeys.size);
 
   const allGenres = $derived.by(() => {
@@ -145,6 +156,10 @@ function createGameStore() {
       games = games.filter((g) => g.is_hidden);
     } else {
       games = games.filter((g) => !g.is_hidden);
+    }
+
+    if (filterFavorite) {
+      games = games.filter((g) => g.is_favorite);
     }
 
     if (filterNew) {
@@ -194,6 +209,13 @@ function createGameStore() {
   function exitHiddenFilterIfEmpty() {
     if (filterHidden && allGames.every((g) => !g.is_hidden)) {
       filterHidden = false;
+    }
+  }
+
+  /** Tắt filterFavorite nếu không còn game yêu thích nào (dùng sau khi bỏ yêu thích) */
+  function exitFavoriteFilterIfEmpty() {
+    if (filterFavorite && allGames.every((g) => !g.is_favorite)) {
+      filterFavorite = false;
     }
   }
 
@@ -249,11 +271,12 @@ function createGameStore() {
   }
 
   function clearFilters() {
-    searchQuery   = "";
-    filterVietHoa = false;
-    filterGenre   = "all";
-    filterHidden  = false;
-    filterNew     = false;
+    searchQuery    = "";
+    filterVietHoa  = false;
+    filterGenre    = "all";
+    filterHidden   = false;
+    filterNew      = false;
+    filterFavorite = false;
     // Bỏ chọn game đang hiển thị trong LinksPanel
     selectedGame   = null;
     showLinksPanel = false;
@@ -303,6 +326,36 @@ function createGameStore() {
     checkedKeys = new Set();
     closePanelIfAffected(keys);
     exitHiddenFilterIfEmpty();
+  }
+
+  /** Toggle yêu thích cho 1 game (từ LinksPanel). Cập nhật cache ngay. */
+  function toggleFavorite(game: Game) {
+    const key = gameKey(game);
+    const nowFavorite = !game.is_favorite;
+    allGames = allGames.map((g) =>
+      gameKey(g) === key ? { ...g, is_favorite: nowFavorite } : g
+    );
+    // Cập nhật selectedGame để UI phản hồi ngay
+    if (selectedGame && gameKey(selectedGame) === key) {
+      selectedGame = { ...selectedGame, is_favorite: nowFavorite };
+    }
+    cacheWriteGames(allGames);
+    // Nếu bỏ yêu thích và hết game nào trong danh sách → tự thoát filter
+    if (!nowFavorite) exitFavoriteFilterIfEmpty();
+  }
+
+  /** Cập nhật ghi chú cá nhân cho 1 game. Lưu cache ngay. */
+  function updateNote(game: Game, note: string) {
+    const key = gameKey(game);
+    const trimmed = note.trim() || undefined; // chuỗi rỗng → xóa field
+    allGames = allGames.map((g) =>
+      gameKey(g) === key ? { ...g, note: trimmed } : g
+    );
+    // Cập nhật selectedGame để UI phản hồi ngay
+    if (selectedGame && gameKey(selectedGame) === key) {
+      selectedGame = { ...selectedGame, note: trimmed };
+    }
+    cacheWriteGames(allGames);
   }
 
   /**
@@ -389,37 +442,46 @@ function createGameStore() {
 
   // ── Expose ─────────────────────────────────────────────────────────────────
   return {
-    get allGames()       { return allGames; },
-    get isLoading()      { return isLoading; },
-    get loadError()      { return loadError; },
-    get newGameCount()   { return newGameCount; },
-    get hiddenCount()    { return hiddenCount; },
-    get selectedGame()   { return selectedGame; },
-    get showLinksPanel() { return showLinksPanel; },
-    get showYoutube()    { return showYoutube; },
-    set showYoutube(v: boolean)   { showYoutube = v; },
-    get searchQuery()    { return searchQuery; },
-    set searchQuery(v: string)    { searchQuery = v; },
-    get filterVietHoa()  { return filterVietHoa; },
-    set filterVietHoa(v: boolean) { filterVietHoa = v; },
-    get filterGenre()    { return filterGenre; },
-    set filterGenre(v: string)    { filterGenre = v; },
-    get filterHidden()   { return filterHidden; },
-    set filterHidden(v: boolean)  { filterHidden = v; },
-    get filterNew()      { return filterNew; },
-    set filterNew(v: boolean)     { filterNew = v; },
-    get allGenres()      { return allGenres; },
-    get filteredGames()  { return filteredGames; },
+    get allGames()        { return allGames; },
+    get isLoading()       { return isLoading; },
+    get loadError()       { return loadError; },
+    get newGameCount()    { return newGameCount; },
+    get hiddenCount()     { return hiddenCount; },
+    get favoriteCount()   { return favoriteCount; },
+    get vietHoaCount()    { return vietHoaCount; },
+    get selectedGame()    { return selectedGame; },
+    get showLinksPanel()  { return showLinksPanel; },
+    get showYoutube()     { return showYoutube; },
+    set showYoutube(v: boolean)    { showYoutube = v; },
+    get searchQuery()     { return searchQuery; },
+    set searchQuery(v: string)     { searchQuery = v; },
+    get filterVietHoa()   { return filterVietHoa; },
+    set filterVietHoa(v: boolean)  { filterVietHoa = v; },
+    get filterGenre()     { return filterGenre; },
+    set filterGenre(v: string)     { filterGenre = v; },
+    get filterHidden()    { return filterHidden; },
+    set filterHidden(v: boolean)   { filterHidden = v; },
+    get filterNew()       { return filterNew; },
+    set filterNew(v: boolean)      { filterNew = v; },
+    get filterFavorite()  { return filterFavorite; },
+    set filterFavorite(v: boolean) { filterFavorite = v; },
+    get allGenres()       { return allGenres; },
+    get filteredGames()   { return filteredGames; },
     // Multi-select
-    get checkedKeys()    { return checkedKeys; },
-    get checkedCount()   { return checkedCount; },
-    get allChecked()     { return allChecked; },
+    get checkedKeys()     { return checkedKeys; },
+    get checkedCount()    { return checkedCount; },
+    get allChecked()      { return allChecked; },
+    // Search input ref (keyboard shortcut)
+    get searchInputEl()   { return searchInputEl; },
+    set searchInputEl(el: HTMLInputElement | null) { searchInputEl = el; },
     getYoutubeEmbedUrl,
     fetchGames,
     selectGame,
     closePanel,
     clearFilters,
     toggleHide,
+    toggleFavorite,
+    updateNote,
     toggleCheck,
     toggleCheckAll,
     clearChecked,
