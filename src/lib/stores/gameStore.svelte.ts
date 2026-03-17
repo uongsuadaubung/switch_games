@@ -133,6 +133,11 @@ function createGameStore() {
   let filterNew     = $state(false);
   let filterFavorite = $state(false);
 
+  // Sort
+  type SortKey = "name" | "size";
+  let sortKey = $state<SortKey | null>(null);
+  let sortDir = $state<"asc" | "desc">("asc");
+
   // View mode — persist vào localStorage để nhớ sau khi restart
   type ViewMode = "table" | "grid";
   const STORAGE_VIEW_MODE = "switch_games_view_mode";
@@ -155,6 +160,21 @@ function createGameStore() {
     allGames.forEach((g) => g.genres.forEach((gen) => genres.add(gen)));
     return ["all", ...Array.from(genres).sort()];
   });
+
+  // ── Sort helper ───────────────────────────────────────────────────────────
+
+  /** Parse size string "3.75 GB" / "512 MB" → bytes (soánh số) */
+  function parseSize(s: string): number {
+    const m = s.match(/([\d.]+)\s*(GB|MB|KB)/i);
+    if (!m) return 0;
+    const v = parseFloat(m[1]);
+    switch (m[2].toUpperCase()) {
+      case "GB": return v * 1024 * 1024;
+      case "MB": return v * 1024;
+      default:   return v;
+    }
+  }
+
 
   const filteredGames = $derived.by(() => {
     let games = allGames;
@@ -189,6 +209,21 @@ function createGameStore() {
 
     if (filterGenre !== "all") {
       games = games.filter((g) => g.genres.includes(filterGenre));
+    }
+
+    // ── Sort ───────────────────────────────────────────────────────
+    if (sortKey) {
+      const dir = sortDir === "asc" ? 1 : -1;
+      games = [...games].sort((a, b) => {
+        switch (sortKey) {
+          case "name":
+            return dir * a.name.localeCompare(b.name, "vi");
+          case "size":
+            return dir * (parseSize(a.size) - parseSize(b.size));
+          default:
+            return 0;
+        }
+      });
     }
 
     return games;
@@ -472,6 +507,18 @@ function createGameStore() {
     set filterNew(v: boolean)      { filterNew = v; },
     get filterFavorite()  { return filterFavorite; },
     set filterFavorite(v: boolean) { filterFavorite = v; },
+    get sortKey()         { return sortKey; },
+    get sortDir()         { return sortDir; },
+    toggleSort(key: "name" | "size") {
+      if (sortKey === key) {
+        // Cùng cột → đảo chiều, hoặc nếu đang desc thì bỏ sort
+        if (sortDir === "asc") { sortDir = "desc"; }
+        else { sortKey = null; sortDir = "asc"; }
+      } else {
+        sortKey = key;
+        sortDir = "asc";
+      }
+    },
     get viewMode()        { return viewMode; },
     set viewMode(v: "table" | "grid") {
       viewMode = v;
