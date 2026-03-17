@@ -1,6 +1,5 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
-  import CachedImage from "$lib/components/CachedImage.svelte";
 
   // Columns: [checkbox | # | Tên game | Kích thước | Thể loại | Links]
   const COL_TEMPLATE = "36px 44px 2fr 1fr 1fr 1fr";
@@ -74,7 +73,7 @@
         <div class="td td-name" role="cell">
           <div class="name-cell">
             {#if game.image_url}
-              <CachedImage {game} class="game-thumb" loading="lazy" />
+              <img src={game.image_url} alt={game.name} class="game-thumb" loading="lazy" />
             {/if}
             <div class="name-info">
               <span class="game-name">{game.name}</span>

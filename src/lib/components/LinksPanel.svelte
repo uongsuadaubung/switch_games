@@ -1,6 +1,5 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
-  import CachedImage from "$lib/components/CachedImage.svelte";
   import type { GameLinks } from "$lib/types";
 
   // Config cho các section link — thêm loại mới tại đây
@@ -34,7 +33,7 @@
 
     {#if game.image_url}
       <div class="panel-image">
-        <CachedImage {game} alt={game.name} />
+        <img src={game.image_url} alt={game.name} />
       </div>
     {/if}
 
@@ -146,7 +145,7 @@
   .close-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   .panel-image { padding: 0 16px 0; flex-shrink: 0; border-bottom: 1px solid var(--border); }
-  .panel-image :global(img) { width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; display: block; margin: 10px 0; }
+  .panel-image img { width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; display: block; margin: 10px 0; }
 
   .panel-meta { display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 16px; font-size: 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 
