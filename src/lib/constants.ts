@@ -1,10 +1,10 @@
 // ── GitHub repos ─────────────────────────────────────────────────────────────
 
 /** Repo chứa source code app */
-const APP_REPO = "uongsuadaubung/switch_games";
+const APP_REPO = "uongsuadaubung/switch-games";
 
 /** Repo chứa data game (JSON) */
-const DATA_REPO = "uongsuadaubung/switch_games_data";
+const DATA_REPO = "uongsuadaubung/switch-games-data";
 
 // ── Data URLs ────────────────────────────────────────────────────────────────
 
