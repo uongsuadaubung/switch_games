@@ -1,6 +1,6 @@
 [package]
 name = "switch-games"
-version = "0.2.0"
+version = "0.3.0"
 description = "Desktop app quản lý thư viện game Nintendo Switch, lấy dữ liệu từ GitHub"
 authors = ["uongsuadaubung"]
 edition = "2021"
@@ -23,7 +23,6 @@ tauri-plugin-opener = "2"
 tauri-plugin-fs = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
 
 [profile.release]
 opt-level = "z"       # Tối ưu cho dung lượng nhỏ nhất

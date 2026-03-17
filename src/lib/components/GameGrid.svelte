@@ -1,6 +1,5 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
-  import CachedImage from "$lib/components/CachedImage.svelte";
 </script>
 
 <div class="grid-container">
@@ -40,7 +39,7 @@
           <!-- Thumbnail -->
           <div class="card-image">
             {#if game.image_url}
-              <CachedImage {game} alt={game.name} />
+              <img src={game.image_url} alt={game.name} loading="lazy" />
             {:else}
               <div class="no-image">🎮</div>
             {/if}
@@ -150,7 +149,7 @@
     overflow: hidden;
     flex-shrink: 0;
   }
-  .card-image :global(img) {
+  .card-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -220,10 +219,6 @@
   .card-size {
     font-size: 11px;
     color: var(--text-secondary);
-  }
-  .badge-viet {
-    font-size: 12px;
-    line-height: 1;
   }
   .card-genres {
     font-size: 10px;

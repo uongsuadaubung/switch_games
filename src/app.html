@@ -11,6 +11,25 @@
 
 <body data-sveltekit-preload-data="hover">
   <div style="display: contents">%sveltekit.body%</div>
+
+  <script>
+    // Chặn right-click và phím tắt DevTools trong production
+    // Dev mode chạy qua vite devserver (localhost:1420) → không bị chặn
+    // Production build phục vụ qua tauri://localhost → bị chặn
+    var _isDev = location.port !== '';
+    if (!_isDev) {
+      document.addEventListener('contextmenu', function (e) { e.preventDefault(); }, true);
+      document.addEventListener('keydown', function (e) {
+        if (
+          e.key === 'F12' ||
+          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+          (e.ctrlKey && e.key === 'U')
+        ) {
+          e.preventDefault();
+        }
+      }, true);
+    }
+  </script>
 </body>
 
 </html>

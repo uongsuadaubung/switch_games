@@ -4,7 +4,6 @@ use commands::{
     open_url, open_urls,
     read_games_cache, write_games_cache,
     read_version_hash, write_version_hash,
-    check_image_cache, save_image_cache,
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -19,8 +18,6 @@ pub fn run() {
             write_games_cache,
             read_version_hash,
             write_version_hash,
-            check_image_cache,
-            save_image_cache,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
