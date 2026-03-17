@@ -16,12 +16,8 @@ export interface Game {
   name: string;
   game_id: string;
   is_viet_hoa: boolean;
-  /** Game mới xuất hiện so với lần cache trước */
+  /** Game mới xuất hiện trong data JSON */
   is_new?: boolean;
-  /** ISO timestamp lúc game được đánh dấu là mới */
-  is_new_since?: string;
-  /** User đã click vào game này chưa */
-  is_new_seen?: boolean;
   /** User đã ẩn game này */
   is_hidden?: boolean;
   /** User đã đánh dấu yêu thích */

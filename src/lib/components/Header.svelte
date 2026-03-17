@@ -14,9 +14,6 @@
 
 <header class="header">
   <div class="header-left">
-    <div class="logo">
-      <img src="/app-icon.png" alt="Switch Games Manager" class="app-icon" />
-    </div>
     <h1 class="app-title">Switch Games Manager</h1>
   </div>
 
@@ -82,8 +79,6 @@
 
   .header-left { display: flex; align-items: center; gap: 12px; }
   .header-right { display: flex; align-items: center; gap: 12px; }
-  .logo { display: flex; align-items: center; }
-  .app-icon { width: 28px; height: 28px; border-radius: 6px; display: block; }
   .app-title { font-size: 16px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
   .game-count { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
 
