@@ -135,7 +135,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .filter-bar {
     display: flex;
     align-items: center;
@@ -149,7 +149,7 @@
     position: relative;
   }
 
-  /* ── Selection toolbar ── */
+  // ── Selection toolbar ──
   .selection-bar {
     display: flex;
     align-items: center;
@@ -161,15 +161,14 @@
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
   .sel-label {
     font-size: 13px;
     color: var(--text-secondary);
     flex: 1;
+    strong { color: var(--blue); font-weight: 700; }
   }
-  .sel-label strong {
-    color: var(--blue);
-    font-weight: 700;
-  }
+
   .sel-btn {
     border-radius: 8px;
     padding: 6px 14px;
@@ -177,46 +176,42 @@
     font-weight: 600;
     transition: background 0.15s, border-color 0.15s;
   }
+
   .hide-btn {
     background: rgba(228, 0, 15, 0.12);
     border: 1px solid rgba(228, 0, 15, 0.4);
     color: var(--accent);
+    &:hover { background: rgba(228, 0, 15, 0.22); border-color: var(--accent); }
   }
-  .hide-btn:hover {
-    background: rgba(228, 0, 15, 0.22);
-    border-color: var(--accent);
-  }
+
   .unhide-btn {
     background: rgba(0, 200, 100, 0.12);
     border: 1px solid rgba(0, 200, 100, 0.4);
     color: #00e676;
+    &:hover { background: rgba(0, 200, 100, 0.22); border-color: rgba(0, 200, 100, 0.7); }
   }
-  .unhide-btn:hover {
-    background: rgba(0, 200, 100, 0.22);
-    border-color: rgba(0, 200, 100, 0.7);
-  }
+
   .cancel-btn {
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-  }
-  .cancel-btn:hover {
-    border-color: var(--accent);
-    color: var(--text-primary);
+    &:hover { border-color: var(--accent); color: var(--text-primary); }
   }
 
-  /* ── Normal filters ── */
+  // ── Normal filters ──
   .search-wrap {
     position: relative;
     display: flex;
     align-items: center;
   }
+
   .search-icon {
     position: absolute;
     left: 9px;
     color: var(--text-secondary);
     pointer-events: none;
   }
+
   .search-input {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -225,13 +220,10 @@
     color: var(--text-primary);
     width: 240px;
     font-size: 13px;
+    &:focus { border-color: var(--accent); }
+    &::placeholder { color: var(--text-secondary); }
   }
-  .search-input:focus {
-    border-color: var(--accent);
-  }
-  .search-input::placeholder {
-    color: var(--text-secondary);
-  }
+
   .clear-btn {
     position: absolute;
     right: 8px;
@@ -239,9 +231,7 @@
     color: var(--text-secondary);
     font-size: 11px;
     padding: 2px;
-  }
-  .clear-btn:hover {
-    color: var(--text-primary);
+    &:hover { color: var(--text-primary); }
   }
 
   .filter-select {
@@ -254,10 +244,7 @@
     font-size: 13px;
     cursor: pointer;
     max-width: 160px;
-  }
-  .filter-select:focus {
-    border-color: var(--accent);
-    outline: none;
+    &:focus { border-color: var(--accent); outline: none; }
   }
 
   .filter-toggle {
@@ -268,52 +255,24 @@
     color: var(--text-secondary);
     font-size: 13px;
     white-space: nowrap;
-  }
-  .filter-toggle:hover {
-    border-color: var(--accent);
-    color: var(--text-primary);
-  }
-  .filter-toggle.active {
-    background: var(--accent-dim);
-    border-color: var(--accent);
-    color: var(--accent);
-    font-weight: 600;
-  }
 
-  .hidden-filter.active {
-    background: rgba(140, 140, 160, 0.15);
-    border-color: rgba(140, 140, 160, 0.5);
-    color: var(--text-secondary);
+    &:hover { border-color: var(--accent); color: var(--text-primary); }
+    &.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    &.hidden-filter.active { background: rgba(140,140,160,0.15); border-color: rgba(140,140,160,0.5); color: var(--text-secondary); }
   }
 
   .new-filter {
     border-color: rgba(0, 200, 100, 0.3);
     color: #00e676;
-  }
-  .new-filter:hover {
-    border-color: rgba(0, 200, 100, 0.6);
-    background: rgba(0, 200, 100, 0.07);
-  }
-  .new-filter.active {
-    background: rgba(0, 200, 100, 0.15);
-    border-color: rgba(0, 200, 100, 0.6);
-    color: #00e676;
-    font-weight: 700;
+    &:hover { border-color: rgba(0,200,100,0.6); background: rgba(0,200,100,0.07); }
+    &.active { background: rgba(0,200,100,0.15); border-color: rgba(0,200,100,0.6); color: #00e676; font-weight: 700; }
   }
 
   .fav-filter {
     border-color: rgba(255, 100, 130, 0.3);
     color: rgba(255, 100, 130, 0.8);
-  }
-  .fav-filter:hover {
-    border-color: rgba(255, 100, 130, 0.6);
-    background: rgba(255, 100, 130, 0.07);
-  }
-  .fav-filter.active {
-    background: rgba(255, 100, 130, 0.15);
-    border-color: rgba(255, 100, 130, 0.6);
-    color: #ff6482;
-    font-weight: 700;
+    &:hover { border-color: rgba(255,100,130,0.6); background: rgba(255,100,130,0.07); }
+    &.active { background: rgba(255,100,130,0.15); border-color: rgba(255,100,130,0.6); color: #ff6482; font-weight: 700; }
   }
 
   .clear-filters {
@@ -324,10 +283,10 @@
     border-radius: 6px;
     border: 1px solid transparent;
     transition: color 0.15s, border-color 0.15s;
+    &:hover { color: var(--accent); border-color: rgba(205,72,51,0.3); }
   }
-  .clear-filters:hover { color: var(--accent); border-color: rgba(205,72,51,0.3); }
 
-  /* View mode toggle */
+  // View mode toggle
   .view-toggle {
     margin-left: auto;
     display: flex;
@@ -338,6 +297,7 @@
     padding: 2px;
     flex-shrink: 0;
   }
+
   .view-btn {
     display: flex;
     align-items: center;
@@ -349,7 +309,7 @@
     background: none;
     border: none;
     transition: background 0.12s, color 0.12s;
+    &:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+    &.active { background: var(--accent); color: white; }
   }
-  .view-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
-  .view-btn.active { background: var(--accent); color: white; }
 </style>

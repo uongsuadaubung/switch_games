@@ -72,7 +72,7 @@
   {/if}
 </div>
 
-<style>
+<style lang="scss">
   .grid-container {
     flex: 1;
     overflow-y: auto;
@@ -86,7 +86,7 @@
     gap: 12px;
   }
 
-  /* ── Card ─────────────────────────────────────────────────────────────────── */
+  // ── Card ───────────────────────────────────────────────────────────────────
   .game-card {
     position: relative;
     background: var(--bg-card);
@@ -97,29 +97,34 @@
     transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
     display: flex;
     flex-direction: column;
-    /* Skip layout + paint cho card ngoài viewport → giảm lag khi render toàn bộ list */
     content-visibility: auto;
     contain-intrinsic-size: auto 220px;
-  }
-  .game-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px);
-    will-change: transform; /* chỉ promote GPU layer khi hover, không phải toàn bộ */
-  }
-  .game-card.selected {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(205, 72, 51, 0.25);
-  }
-  .game-card.checked {
-    border-color: var(--accent);
-    background: rgba(205, 72, 51, 0.06);
-  }
-  .game-card.hidden-card {
-    opacity: 0.45;
+
+    &:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+      will-change: transform;
+
+      .card-check { opacity: 1; }
+    }
+
+    &.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(205, 72, 51, 0.25);
+    }
+
+    &.checked {
+      border-color: var(--accent);
+      background: rgba(205, 72, 51, 0.06);
+
+      .card-check { opacity: 1; }
+    }
+
+    &.hidden-card { opacity: 0.45; }
   }
 
-  /* ── Checkbox ─────────────────────────────────────────────────────────────── */
+  // ── Checkbox ───────────────────────────────────────────────────────────────
   .card-check {
     position: absolute;
     top: 7px;
@@ -135,26 +140,29 @@
     opacity: 0;
     transition: opacity 0.15s;
   }
-  .game-card:hover .card-check,
-  .game-card.checked .card-check {
-    opacity: 1;
-  }
-  .check-icon { font-size: 14px; color: #fff; line-height: 1; }
 
-  /* ── Image ────────────────────────────────────────────────────────────────── */
+  .check-icon {
+    font-size: 14px;
+    color: #fff;
+    line-height: 1;
+  }
+
+  // ── Image ──────────────────────────────────────────────────────────────────
   .card-image {
     width: 100%;
     aspect-ratio: 16 / 9;
     background: rgba(255, 255, 255, 0.04);
     overflow: hidden;
     flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
-  .card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+
   .no-image {
     width: 100%;
     height: 100%;
@@ -165,7 +173,7 @@
     opacity: 0.3;
   }
 
-  /* ── Tags overlay ─────────────────────────────────────────────────────────── */
+  // ── Tags overlay ───────────────────────────────────────────────────────────
   .card-tags {
     position: absolute;
     top: 7px;
@@ -176,6 +184,7 @@
     align-items: flex-end;
     z-index: 2;
   }
+
   .tag {
     font-size: 11px;
     border-radius: 4px;
@@ -183,14 +192,15 @@
     line-height: 1.5;
     font-weight: 700;
     backdrop-filter: blur(4px);
-  }
-  .tag-new  { background: rgba(0, 200, 100, 0.2);   color: #00e676; border: 1px solid rgba(0,200,100,0.4); }
-  .tag-fav  { background: rgba(255,100,130, 0.2);   color: #ff6482; border: 1px solid rgba(255,100,130,0.4); }
-  .tag-note { background: rgba(250,204,21, 0.2);    color: #facc15; border: 1px solid rgba(250,204,21,0.35); cursor: default; }
-  .tag-hidden { background: rgba(140,140,160, 0.2); color: #aaa;    border: 1px solid rgba(140,140,160,0.4); }
-  .tag-viet { background: rgba(0, 80, 200, 0.25);   color: #7ab3ff; border: 1px solid rgba(0,80,200,0.4); }
 
-  /* ── Body ─────────────────────────────────────────────────────────────────── */
+    &.tag-new    { background: rgba(0, 200, 100, 0.2);   color: #00e676; border: 1px solid rgba(0,200,100,0.4); }
+    &.tag-fav    { background: rgba(255,100,130, 0.2);   color: #ff6482; border: 1px solid rgba(255,100,130,0.4); }
+    &.tag-note   { background: rgba(250,204,21, 0.2);    color: #facc15; border: 1px solid rgba(250,204,21,0.35); cursor: default; }
+    &.tag-hidden { background: rgba(140,140,160, 0.2);   color: #aaa;    border: 1px solid rgba(140,140,160,0.4); }
+    &.tag-viet   { background: rgba(0, 80, 200, 0.25);   color: #7ab3ff; border: 1px solid rgba(0,80,200,0.4); }
+  }
+
+  // ── Body ───────────────────────────────────────────────────────────────────
   .card-body {
     padding: 10px 10px 11px;
     display: flex;
@@ -198,29 +208,33 @@
     gap: 4px;
     flex: 1;
   }
+
   .card-name {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
     line-height: 1.35;
-    /* Clamp to 2 lines */
+    // Clamp to 2 lines
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
   .card-meta {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-top: 2px;
   }
+
   .card-size {
     font-size: 11px;
     color: var(--text-secondary);
   }
+
   .card-genres {
     font-size: 10px;
     color: var(--text-secondary);
@@ -228,7 +242,7 @@
     opacity: 0.7;
   }
 
-  /* ── Empty state ──────────────────────────────────────────────────────────── */
+  // ── Empty state ────────────────────────────────────────────────────────────
   .empty-state {
     flex: 1;
     display: flex;
@@ -238,7 +252,10 @@
     gap: 12px;
     padding: 60px 0;
     color: var(--text-secondary);
+
+    p { margin: 0; font-size: 14px; }
   }
+
   .empty-icon { font-size: 40px; opacity: 0.4; }
-  .empty-state p { margin: 0; font-size: 14px; }
 </style>
+

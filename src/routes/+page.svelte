@@ -66,7 +66,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .app-shell {
     display: flex;
     flex-direction: column;
@@ -74,25 +74,30 @@
     background: var(--bg-primary);
     overflow: hidden;
   }
+
   .content-area {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
+
   .table-panel-layout {
     flex: 1;
     display: flex;
     overflow: hidden;
     min-height: 0;
-  }
-  .table-panel-layout.has-panel :global(.table-container),
-  .table-panel-layout.has-panel :global(.grid-container) {
-    flex: 0 0 auto;
-    width: 62%;
+
+    &.has-panel {
+      :global(.table-container),
+      :global(.grid-container) {
+        flex: 0 0 auto;
+        width: 62%;
+      }
+    }
   }
 
-  /* Error state */
+  // Error state
   .error-state {
     flex: 1;
     display: flex;
@@ -102,19 +107,29 @@
     gap: 12px;
     animation: fadeIn 0.3s ease;
   }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
   .error-icon { font-size: 40px; }
+
   .error-title {
-    font-size: 16px; font-weight: 600;
-    color: var(--text-primary); margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
   }
+
   .error-msg {
-    font-size: 12px; color: var(--text-secondary);
-    margin: 0; max-width: 400px; text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 400px;
+    text-align: center;
   }
+
   .retry-btn {
     margin-top: 8px;
     padding: 8px 20px;
@@ -124,6 +139,9 @@
     font-weight: 600;
     font-size: 13px;
     transition: opacity 0.15s;
+
+    &:hover { opacity: 0.85; }
   }
-  .retry-btn:hover { opacity: 0.85; }
 </style>
+
+

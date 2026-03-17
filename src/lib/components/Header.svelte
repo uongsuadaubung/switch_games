@@ -67,7 +67,7 @@
   </div>
 </header>
 
-<style>
+<style lang="scss">
   .header {
     display: flex;
     align-items: center;
@@ -79,6 +79,7 @@
     flex-shrink: 0;
     gap: 16px;
   }
+
   .header-left { display: flex; align-items: center; gap: 12px; }
   .header-right { display: flex; align-items: center; gap: 12px; }
   .logo { display: flex; align-items: center; }
@@ -87,7 +88,8 @@
   .game-count { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
 
   .new-badge {
-    font-size: 11px; font-weight: 700;
+    font-size: 11px;
+    font-weight: 700;
     color: #00e676;
     background: rgba(0, 200, 100, 0.1);
     border: 1px solid rgba(0, 200, 100, 0.3);
@@ -96,12 +98,13 @@
     white-space: nowrap;
     animation: badgePulse 2.5s ease-in-out infinite;
   }
+
   @keyframes badgePulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 100, 0); }
     50%       { box-shadow: 0 0 8px 2px rgba(0, 200, 100, 0.25); }
   }
 
-  /* ── Update badge ─────────────────────────────────────────────── */
+  // ── Update badge ────────────────────────────────────────────────────────────
   .update-badge {
     display: flex;
     align-items: center;
@@ -117,11 +120,13 @@
     text-decoration: none;
     transition: background 0.15s, border-color 0.15s;
     animation: updatePulse 3s ease-in-out infinite;
+
+    &:hover {
+      background: rgba(255, 213, 79, 0.18);
+      border-color: rgba(255, 213, 79, 0.6);
+    }
   }
-  .update-badge:hover {
-    background: rgba(255, 213, 79, 0.18);
-    border-color: rgba(255, 213, 79, 0.6);
-  }
+
   @keyframes updatePulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(255, 213, 79, 0); }
     50%       { box-shadow: 0 0 8px 2px rgba(255, 213, 79, 0.2); }
@@ -131,7 +136,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 14px; height: 14px;
+    width: 14px;
+    height: 14px;
     margin-left: 2px;
     padding: 0;
     background: transparent;
@@ -142,30 +148,46 @@
     border-radius: 50%;
     transition: color 0.15s, background 0.15s;
     line-height: 1;
-  }
-  .dismiss-btn:hover {
-    color: #ffd54f;
-    background: rgba(255, 213, 79, 0.15);
+
+    &:hover {
+      color: #ffd54f;
+      background: rgba(255, 213, 79, 0.15);
+    }
   }
 
   .btn-refresh {
-    display: flex; align-items: center; gap: 6px; padding: 7px 14px;
-    background: var(--bg-primary); color: var(--text-secondary);
-    border: 1px solid var(--border); border-radius: 8px;
-    font-weight: 600; white-space: nowrap; font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-size: 13px;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
-  .btn-refresh:hover:not(:disabled) {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--accent);
-  }
-  .btn-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
   }
+
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
+
