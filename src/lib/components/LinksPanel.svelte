@@ -1,6 +1,7 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
   import type { GameLinks } from "$lib/types";
+  import { IS_BROWSER } from "$lib/environment";
 
   // Config cho các section link — thêm loại mới tại đây
   const LINK_SECTIONS: { key: keyof GameLinks; label: string; cls: string }[] = [
@@ -79,17 +80,19 @@
     </div>
 
     <!-- ── Ghi chú cá nhân ── -->
-    <div class="note-section">
-      <label class="note-label" for="game-note">📝 Ghi chú</label>
-      <textarea
-        id="game-note"
-        class="note-input"
-        rows="3"
-        placeholder="Đã chơi xong, chờ update, cần firmware..."
-        bind:value={noteDraft}
-        onblur={() => store.updateNote(game, noteDraft)}
-      ></textarea>
-    </div>
+    {#if !IS_BROWSER}
+      <div class="note-section">
+        <label class="note-label" for="game-note">📝 Ghi chú</label>
+        <textarea
+          id="game-note"
+          class="note-input"
+          rows="3"
+          placeholder="Đã chơi xong, chờ update, cần firmware..."
+          bind:value={noteDraft}
+          onblur={() => store.updateNote(game, noteDraft)}
+        ></textarea>
+      </div>
+    {/if}
 
     {#if store.showYoutube && game.review_url}
       {@const embedUrl = store.getYoutubeEmbedUrl(game.review_url)}
