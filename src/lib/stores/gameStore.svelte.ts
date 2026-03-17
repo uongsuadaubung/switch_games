@@ -1,10 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Game } from "$lib/types";
-
-const VERSION_JSON_URL =
-  "https://raw.githubusercontent.com/uongsuadaubung/switch_games_data/main/data/version.json";
-const GAMES_JSON_URL =
-  "https://raw.githubusercontent.com/uongsuadaubung/switch_games_data/main/data/games.json";
+import { VERSION_JSON_URL, GAMES_JSON_URL } from "$lib/constants";
 
 // ── Cache helpers (Tauri ↔ disk) ──────────────────────────────────────────────
 

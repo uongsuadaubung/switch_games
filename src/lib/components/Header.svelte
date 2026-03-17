@@ -1,5 +1,15 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { store } from "$lib/stores/gameStore.svelte";
+  import { updateStore } from "$lib/stores/updateStore.svelte";
+
+  onMount(() => {
+    // Kiểm tra cập nhật sau 2 giây để không block load màn hình đầu
+    const timer = setTimeout(() => {
+      updateStore.checkForUpdate();
+    }, 2000);
+    return () => clearTimeout(timer);
+  });
 </script>
 
 <header class="header">
@@ -19,6 +29,28 @@
       <span class="new-badge" title="{store.newGameCount} game mới kể từ lần cập nhật trước">
         ✦ {store.newGameCount} mới
       </span>
+    {/if}
+
+    {#if updateStore.hasUpdate}
+      <a
+        class="update-badge"
+        href={updateStore.releaseUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Bản mới: v{updateStore.latestVersion} — Click để tải về"
+      >
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2v12M6 10l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 20h16" stroke-linecap="round"/>
+        </svg>
+        v{updateStore.latestVersion} có sẵn
+        <button
+          class="dismiss-btn"
+          onclick={(e) => { e.preventDefault(); updateStore.dismiss(); }}
+          title="Bỏ qua"
+          aria-label="Bỏ qua thông báo cập nhật"
+        >✕</button>
+      </a>
     {/if}
 
     <button class="btn-refresh" onclick={store.fetchGames} disabled={store.isLoading} title="Làm mới dữ liệu">
@@ -67,6 +99,53 @@
   @keyframes badgePulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 100, 0); }
     50%       { box-shadow: 0 0 8px 2px rgba(0, 200, 100, 0.25); }
+  }
+
+  /* ── Update badge ─────────────────────────────────────────────── */
+  .update-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffd54f;
+    background: rgba(255, 213, 79, 0.1);
+    border: 1px solid rgba(255, 213, 79, 0.35);
+    border-radius: 20px;
+    padding: 3px 10px 3px 8px;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+    animation: updatePulse 3s ease-in-out infinite;
+  }
+  .update-badge:hover {
+    background: rgba(255, 213, 79, 0.18);
+    border-color: rgba(255, 213, 79, 0.6);
+  }
+  @keyframes updatePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 213, 79, 0); }
+    50%       { box-shadow: 0 0 8px 2px rgba(255, 213, 79, 0.2); }
+  }
+
+  .dismiss-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px; height: 14px;
+    margin-left: 2px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: rgba(255, 213, 79, 0.6);
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+  }
+  .dismiss-btn:hover {
+    color: #ffd54f;
+    background: rgba(255, 213, 79, 0.15);
   }
 
   .btn-refresh {
