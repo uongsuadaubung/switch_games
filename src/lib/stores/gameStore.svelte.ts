@@ -133,6 +133,13 @@ function createGameStore() {
   let filterNew     = $state(false);
   let filterFavorite = $state(false);
 
+  // View mode — persist vào localStorage để nhớ sau khi restart
+  type ViewMode = "table" | "grid";
+  const STORAGE_VIEW_MODE = "switch_games_view_mode";
+  let viewMode = $state<ViewMode>(
+    (localStorage.getItem(STORAGE_VIEW_MODE) as ViewMode | null) ?? "table"
+  );
+
   // Search input element ref (dùng cho keyboard shortcut Ctrl+F)
   let searchInputEl = $state<HTMLInputElement | null>(null);
 
@@ -465,6 +472,11 @@ function createGameStore() {
     set filterNew(v: boolean)      { filterNew = v; },
     get filterFavorite()  { return filterFavorite; },
     set filterFavorite(v: boolean) { filterFavorite = v; },
+    get viewMode()        { return viewMode; },
+    set viewMode(v: "table" | "grid") {
+      viewMode = v;
+      localStorage.setItem(STORAGE_VIEW_MODE, v);
+    },
     get allGenres()       { return allGenres; },
     get filteredGames()   { return filteredGames; },
     // Multi-select
