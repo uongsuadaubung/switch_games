@@ -61,6 +61,12 @@
                   {#if game.is_new}
                     <span class="tag tag-new">✦ MỚI</span>
                   {/if}
+                  {#if game.is_favorite}
+                    <span class="tag tag-fav">❤</span>
+                  {/if}
+                  {#if game.note}
+                    <span class="tag tag-note" title={game.note}>📝</span>
+                  {/if}
                   {#if game.is_viet_hoa}
                     <span class="tag tag-viet">Việt Hóa</span>
                   {/if}
@@ -292,6 +298,19 @@
     border: 1px solid rgba(0, 200, 100, 0.35);
     animation: newPulse 2.5s ease-in-out infinite;
     letter-spacing: 0.5px;
+  }
+  .tag-fav {
+    background: rgba(255, 100, 130, 0.12);
+    color: #ff6482;
+    border: 1px solid rgba(255, 100, 130, 0.3);
+    padding: 1px 5px;
+  }
+  .tag-note {
+    background: rgba(250, 204, 21, 0.1);
+    color: #facc15;
+    border: 1px solid rgba(250, 204, 21, 0.25);
+    padding: 1px 5px;
+    cursor: default;
   }
   @keyframes newPulse {
     0%,

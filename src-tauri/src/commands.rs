@@ -35,7 +35,9 @@ pub async fn open_url(app: tauri::AppHandle, url: String) -> Result<(), String> 
 pub async fn open_urls(app: tauri::AppHandle, urls: Vec<String>) -> Result<(), String> {
     for url in urls {
         if !url.is_empty() {
-            let _ = app.opener().open_url(&url, None::<&str>);
+            if let Err(e) = app.opener().open_url(&url, None::<&str>) {
+                eprintln!("Không mở được URL {url}: {e}");
+            }
         }
     }
     Ok(())
@@ -104,7 +106,11 @@ pub async fn check_image_cache(
     app: tauri::AppHandle,
     key: String,
 ) -> Result<Option<String>, String> {
-    let path = get_images_dir(&app)?.join(format!("{key}.jpg"));
+    // Sanitize key: chỉ giữ ký tự an toàn để tránh path traversal từ frontend
+    let safe_key: String = key.chars()
+        .filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-')
+        .collect();
+    let path = get_images_dir(&app)?.join(format!("{safe_key}.jpg"));
     if path.exists() {
         Ok(Some(path.to_string_lossy().to_string()))
     } else {
@@ -122,7 +128,11 @@ pub async fn save_image_cache(
     key: String,
     data: Vec<u8>,
 ) -> Result<String, String> {
-    let path = get_images_dir(&app)?.join(format!("{key}.jpg"));
+    // Sanitize key: chỉ giữ ký tự an toàn để tránh path traversal từ frontend
+    let safe_key: String = key.chars()
+        .filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-')
+        .collect();
+    let path = get_images_dir(&app)?.join(format!("{safe_key}.jpg"));
 
     // Thử decode + nén
     let compressed = compress_image(&data);

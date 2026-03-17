@@ -39,6 +39,7 @@
         type="text"
         placeholder="Tìm game, thể loại, ID..."
         bind:value={store.searchQuery}
+        bind:this={store.searchInputEl}
       />
       {#if store.searchQuery}
         <button class="clear-btn" onclick={() => (store.searchQuery = "")}
@@ -55,13 +56,15 @@
       {/each}
     </select>
 
-    <button
-      class="filter-toggle"
-      class:active={store.filterVietHoa}
-      onclick={() => (store.filterVietHoa = !store.filterVietHoa)}
-    >
-      Việt hóa
-    </button>
+    {#if store.vietHoaCount > 0}
+      <button
+        class="filter-toggle viet-filter"
+        class:active={store.filterVietHoa}
+        onclick={() => (store.filterVietHoa = !store.filterVietHoa)}
+      >
+        Việt hóa ({store.vietHoaCount})
+      </button>
+    {/if}
 
     {#if store.hiddenCount > 0}
       <button
@@ -83,7 +86,17 @@
       </button>
     {/if}
 
-    {#if store.searchQuery || store.filterVietHoa || store.filterGenre !== "all" || store.filterHidden || store.filterNew}
+    {#if store.favoriteCount > 0}
+      <button
+        class="filter-toggle fav-filter"
+        class:active={store.filterFavorite}
+        onclick={() => (store.filterFavorite = !store.filterFavorite)}
+      >
+        ❤ Yêu thích ({store.favoriteCount})
+      </button>
+    {/if}
+
+    {#if store.searchQuery || store.filterVietHoa || store.filterGenre !== "all" || store.filterHidden || store.filterNew || store.filterFavorite}
       <button class="clear-filters" onclick={store.clearFilters}
         >Xóa bộ lọc</button
       >
@@ -253,6 +266,21 @@
     background: rgba(0, 200, 100, 0.15);
     border-color: rgba(0, 200, 100, 0.6);
     color: #00e676;
+    font-weight: 700;
+  }
+
+  .fav-filter {
+    border-color: rgba(255, 100, 130, 0.3);
+    color: rgba(255, 100, 130, 0.8);
+  }
+  .fav-filter:hover {
+    border-color: rgba(255, 100, 130, 0.6);
+    background: rgba(255, 100, 130, 0.07);
+  }
+  .fav-filter.active {
+    background: rgba(255, 100, 130, 0.15);
+    border-color: rgba(255, 100, 130, 0.6);
+    color: #ff6482;
     font-weight: 700;
   }
 

@@ -8,6 +8,34 @@
   import LinksPanel from "$lib/components/LinksPanel.svelte";
 
   onMount(store.fetchGames);
+
+  // ── Keyboard shortcuts ──────────────────────────────────────────────────────
+  $effect(() => {
+    function handleKeydown(e: KeyboardEvent) {
+      const input = store.searchInputEl;
+
+      // Ctrl+F → focus search (ngăn trình duyệt mở Find bar)
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+        e.preventDefault();
+        input?.focus();
+        input?.select();
+        return;
+      }
+
+      // Escape → nếu search đang focus thì blur + clear; nếu không thì đóng panel
+      if (e.key === "Escape") {
+        if (document.activeElement === input) {
+          store.searchQuery = "";
+          input?.blur();
+        } else if (store.showLinksPanel) {
+          store.closePanel();
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  });
 </script>
 
 <div class="app-shell">
