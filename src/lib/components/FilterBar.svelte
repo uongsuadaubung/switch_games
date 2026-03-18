@@ -178,17 +178,17 @@
   }
 
   .hide-btn {
-    background: rgba(228, 0, 15, 0.12);
-    border: 1px solid rgba(228, 0, 15, 0.4);
+    background: var(--accent-dim-sm);
+    border: 1px solid var(--accent-border-md);
     color: var(--accent);
-    &:hover { background: rgba(228, 0, 15, 0.22); border-color: var(--accent); }
+    &:hover { background: var(--accent-dim); border-color: var(--accent); }
   }
 
   .unhide-btn {
-    background: rgba(0, 200, 100, 0.12);
-    border: 1px solid rgba(0, 200, 100, 0.4);
-    color: #00e676;
-    &:hover { background: rgba(0, 200, 100, 0.22); border-color: rgba(0, 200, 100, 0.7); }
+    background: var(--new-dim);
+    border: 1px solid var(--new-border);
+    color: var(--new);
+    &:hover { background: var(--new-dim-md); border-color: var(--new); }
   }
 
   .cancel-btn {
@@ -258,21 +258,21 @@
 
     &:hover { border-color: var(--accent); color: var(--text-primary); }
     &.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-    &.hidden-filter.active { background: rgba(140,140,160,0.15); border-color: rgba(140,140,160,0.5); color: var(--text-secondary); }
+    &.hidden-filter.active { background: var(--muted-dim-md); border-color: var(--muted-border); color: var(--text-secondary); }
   }
 
   .new-filter {
-    border-color: rgba(0, 200, 100, 0.3);
-    color: #00e676;
-    &:hover { border-color: rgba(0,200,100,0.6); background: rgba(0,200,100,0.07); }
-    &.active { background: rgba(0,200,100,0.15); border-color: rgba(0,200,100,0.6); color: #00e676; font-weight: 700; }
+    border-color: var(--new-border);
+    color: var(--new);
+    &:hover { border-color: var(--new); background: var(--new-dim); }
+    &.active { background: var(--new-dim-md); border-color: var(--new); color: var(--new); font-weight: 700; }
   }
 
   .fav-filter {
-    border-color: rgba(255, 100, 130, 0.3);
-    color: rgba(255, 100, 130, 0.8);
-    &:hover { border-color: rgba(255,100,130,0.6); background: rgba(255,100,130,0.07); }
-    &.active { background: rgba(255,100,130,0.15); border-color: rgba(255,100,130,0.6); color: #ff6482; font-weight: 700; }
+    border-color: var(--fav-border);
+    color: var(--fav);
+    &:hover { border-color: var(--fav); background: var(--fav-dim); }
+    &.active { background: var(--fav-dim-md); border-color: var(--fav); color: var(--fav); font-weight: 700; }
   }
 
   .clear-filters {
@@ -283,7 +283,7 @@
     border-radius: 6px;
     border: 1px solid transparent;
     transition: color 0.15s, border-color 0.15s;
-    &:hover { color: var(--accent); border-color: rgba(205,72,51,0.3); }
+    &:hover { color: var(--accent); border-color: var(--accent-border-md); }
   }
 
   // View mode toggle
@@ -309,7 +309,7 @@
     background: none;
     border: none;
     transition: background 0.12s, color 0.12s;
-    &:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+    &:hover { color: var(--text-primary); background: var(--surface-md); }
     &.active { background: var(--accent); color: white; }
   }
 </style>

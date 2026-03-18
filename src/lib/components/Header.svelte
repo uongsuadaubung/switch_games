@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
   import { store } from "$lib/stores/gameStore.svelte";
   import { updateStore } from "$lib/stores/updateStore.svelte";
+  import { GITHUB_RELEASES_URL } from "$lib/constants";
+  import { IS_BROWSER } from "$lib/environment";
 
   onMount(() => {
     // Kiểm tra cập nhật sau 2 giây để không block load màn hình đầu
@@ -50,6 +52,22 @@
       </a>
     {/if}
 
+    {#if IS_BROWSER}
+      <a
+        class="btn-download"
+        href={GITHUB_RELEASES_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Tải ứng dụng desktop"
+      >
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2v12M6 10l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 20h16" stroke-linecap="round"/>
+        </svg>
+        Tải app
+      </a>
+    {/if}
+
     <button class="btn-refresh" onclick={store.fetchGames} disabled={store.isLoading} title="Làm mới dữ liệu">
       {#if store.isLoading}
         <span class="spinner"></span>
@@ -85,9 +103,9 @@
   .new-badge {
     font-size: 11px;
     font-weight: 700;
-    color: #00e676;
-    background: rgba(0, 200, 100, 0.1);
-    border: 1px solid rgba(0, 200, 100, 0.3);
+    color: var(--new);
+    background: var(--new-dim);
+    border: 1px solid var(--new-border);
     border-radius: 20px;
     padding: 3px 10px;
     white-space: nowrap;
@@ -95,8 +113,8 @@
   }
 
   @keyframes badgePulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 100, 0); }
-    50%       { box-shadow: 0 0 8px 2px rgba(0, 200, 100, 0.25); }
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50%       { box-shadow: 0 0 8px 2px var(--new-border); }
   }
 
   // ── Update badge ────────────────────────────────────────────────────────────
@@ -106,9 +124,9 @@
     gap: 5px;
     font-size: 11px;
     font-weight: 700;
-    color: #ffd54f;
-    background: rgba(255, 213, 79, 0.1);
-    border: 1px solid rgba(255, 213, 79, 0.35);
+    color: var(--warn);
+    background: var(--warn-dim);
+    border: 1px solid var(--warn-border);
     border-radius: 20px;
     padding: 3px 10px 3px 8px;
     white-space: nowrap;
@@ -117,14 +135,14 @@
     animation: updatePulse 3s ease-in-out infinite;
 
     &:hover {
-      background: rgba(255, 213, 79, 0.18);
-      border-color: rgba(255, 213, 79, 0.6);
+      background: var(--warn-dim-md);
+      border-color: var(--warn-border-md);
     }
   }
 
   @keyframes updatePulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 213, 79, 0); }
-    50%       { box-shadow: 0 0 8px 2px rgba(255, 213, 79, 0.2); }
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50%       { box-shadow: 0 0 8px 2px var(--warn-border); }
   }
 
   .dismiss-btn {
@@ -137,7 +155,7 @@
     padding: 0;
     background: transparent;
     border: none;
-    color: rgba(255, 213, 79, 0.6);
+    color: var(--warn-border-md);
     font-size: 10px;
     cursor: pointer;
     border-radius: 50%;
@@ -145,8 +163,30 @@
     line-height: 1;
 
     &:hover {
-      color: #ffd54f;
-      background: rgba(255, 213, 79, 0.15);
+      color: var(--warn);
+      background: var(--warn-dim-md);
+    }
+  }
+
+  // ── Download button (web only) ───────────────────────────────────────────────
+  .btn-download {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--accent);
+    color: var(--text-primary);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-size: 13px;
+    text-decoration: none;
+    transition: opacity 0.15s, box-shadow 0.15s;
+
+    &:hover {
+      opacity: 0.88;
+      box-shadow: 0 0 8px var(--accent-border-md);
     }
   }
 
@@ -176,7 +216,7 @@
   .spinner {
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid var(--surface-lg);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;

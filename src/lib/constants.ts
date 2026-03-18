@@ -14,6 +14,7 @@ export const GAMES_JSON_URL   = `https://raw.githubusercontent.com/${DATA_REPO}/
 // ── GitHub Releases API ───────────────────────────────────────────────────────
 
 export const GITHUB_RELEASES_API = `https://api.github.com/repos/${APP_REPO}/releases/latest`;
+export const GITHUB_RELEASES_URL = `https://github.com/${APP_REPO}/releases`;
 
 // ── Tauri command names ───────────────────────────────────────────────────────
 

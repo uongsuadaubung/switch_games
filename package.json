@@ -1,6 +1,6 @@
 {
   "name": "switch-games",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Desktop app quản lý thư viện game Nintendo Switch",
   "type": "module",
   "scripts": {

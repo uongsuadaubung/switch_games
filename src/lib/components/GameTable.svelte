@@ -175,7 +175,7 @@
 
     &:hover {
       color: var(--text-primary);
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--surface-md);
     }
 
     &.active { color: var(--accent); }
@@ -186,17 +186,17 @@
     display: grid;
     cursor: pointer;
     transition: background 0.1s;
-    border-bottom: 1px solid rgba(46, 46, 66, 0.5);
+    border-bottom: 1px solid var(--border);
     content-visibility: auto;
     contain-intrinsic-size: auto 52px;
 
     &:hover       { background: var(--bg-hover); }
     &:focus       { outline: none; }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-    &.selected    { background: var(--accent-dim); border-bottom-color: rgba(228, 0, 15, 0.2); }
-    &.checked     { background: rgba(91, 156, 246, 0.08); border-bottom-color: rgba(91, 156, 246, 0.15); }
+    &.selected    { background: var(--accent-dim); border-bottom-color: var(--accent-border); }
+    &.checked     { background: var(--blue-dim-sm); border-bottom-color: var(--blue-border); }
     &.checked.selected {
-      background: color-mix(in srgb, var(--accent-dim) 60%, rgba(91, 156, 246, 0.1));
+      background: color-mix(in srgb, var(--accent-dim) 60%, var(--blue-dim-sm));
     }
   }
 
@@ -219,7 +219,7 @@
     height: 15px;
     border: 1.5px solid var(--border);
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--surface-lg);
     cursor: pointer;
     display: block;
     position: relative;
@@ -228,13 +228,13 @@
 
     &:hover {
       border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(91, 156, 246, 0.12);
+      box-shadow: 0 0 0 3px var(--blue-glow-sm);
     }
 
     &:checked {
       background: var(--blue);
       border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(91, 156, 246, 0.2);
+      box-shadow: 0 0 0 3px var(--blue-glow-md);
 
       &::after {
         content: "";
@@ -246,7 +246,7 @@
     }
 
     &:indeterminate {
-      background: rgba(91, 156, 246, 0.2);
+      background: var(--blue-dim);
       border-color: var(--blue);
 
       &::after {
@@ -310,22 +310,22 @@
   }
 
   .tag-new {
-    background: rgba(0, 200, 100, 0.15);
-    color: #00e676;
-    border: 1px solid rgba(0, 200, 100, 0.35);
+    background: var(--new-dim-md);
+    color: var(--new);
+    border: 1px solid var(--new-border);
     animation: newPulse 2.5s ease-in-out infinite;
     letter-spacing: 0.5px;
   }
 
   @keyframes newPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 100, 0); }
-    50%       { box-shadow: 0 0 6px 1px rgba(0, 200, 100, 0.35); }
+    0%, 100% { box-shadow: 0 0 0 0 transparent; }
+    50%       { box-shadow: 0 0 6px 1px var(--new-border); }
   }
 
-  .tag-fav  { background: rgba(255, 100, 130, 0.12); color: #ff6482; border: 1px solid rgba(255, 100, 130, 0.3); padding: 1px 5px; }
-  .tag-note { background: rgba(250, 204, 21, 0.1);   color: #facc15; border: 1px solid rgba(250, 204, 21, 0.25); padding: 1px 5px; cursor: default; }
-  .tag-viet { background: rgba(0, 80, 200, 0.2);     color: #7ab3ff; }
-  .tag-id   { background: rgba(100, 100, 140, 0.15); color: var(--text-secondary); font-family: monospace; font-size: 9px; }
+  .tag-fav  { background: var(--fav-dim);  color: var(--fav);  border: 1px solid var(--fav-border);  padding: 1px 5px; }
+  .tag-note { background: var(--note-dim); color: var(--note); border: 1px solid var(--note-border); padding: 1px 5px; cursor: default; }
+  .tag-viet { background: var(--viet-dim); color: var(--viet); }
+  .tag-id   { background: var(--muted-dim-md); color: var(--text-secondary); font-family: monospace; font-size: 9px; }
 
   // ── Genres ──
   .genres-wrap {
@@ -339,7 +339,7 @@
     font-size: 11px;
     padding: 1px 6px;
     border-radius: 4px;
-    background: rgba(91, 156, 246, 0.1);
+    background: var(--blue-dim);
     color: var(--blue);
     white-space: nowrap;
   }
@@ -357,10 +357,10 @@
     padding: 1px 5px;
     border-radius: 3px;
 
-    &.base   { background: rgba(0, 200, 117, 0.15); color: var(--green); }
-    &.update { background: rgba(91, 156, 246, 0.15); color: var(--blue); }
-    &.dlc    { background: rgba(245, 197, 24, 0.15); color: var(--yellow); }
-    &.vh     { background: rgba(0, 80, 200, 0.15); color: #7ab3ff; }
+    &.base   { background: var(--green-dim);  color: var(--green); }
+    &.update { background: var(--blue-dim);   color: var(--blue); }
+    &.dlc    { background: var(--yellow-dim); color: var(--yellow); }
+    &.vh     { background: var(--viet-dim);   color: var(--viet); }
   }
 
   // ── Empty state ──

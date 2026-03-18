@@ -9,13 +9,67 @@
   --accent: #e4000f;
   --accent-hover: #ff1a26;
   --accent-dim: rgba(228, 0, 15, 0.15);
+  --accent-dim-sm: rgba(228, 0, 15, 0.06);
+  --accent-border: rgba(228, 0, 15, 0.2);
+  --accent-border-md: rgba(228, 0, 15, 0.3);
   --text-primary: #f0f0f8;
   --text-secondary: #9090aa;
   --text-muted: #606078;
   --green: #00c875;
+  --green-dim: rgba(0, 200, 117, 0.15);
+  --green-border: rgba(0, 200, 117, 0.3);
   --yellow: #f5c518;
+  --yellow-dim: rgba(245, 197, 24, 0.15);
+  --yellow-border: rgba(245, 197, 24, 0.3);
   --blue: #5b9cf6;
+  --blue-dim: rgba(91, 156, 246, 0.1);
+  --blue-dim-sm: rgba(91, 156, 246, 0.08);
+  --blue-border: rgba(91, 156, 246, 0.15);
+  --blue-glow-sm: rgba(91, 156, 246, 0.12);
+  --blue-glow-md: rgba(91, 156, 246, 0.2);
   --purple: #a78bfa;
+  // ── Semantic palette ─────────────────────────────────────────────────────────
+  --fav: #ff6482;
+  --fav-dim: rgba(255, 100, 130, 0.12);
+  --fav-dim-md: rgba(255, 100, 130, 0.18);
+  --fav-border: rgba(255, 100, 130, 0.3);
+  --note: #facc15;
+  --note-dim: rgba(250, 204, 21, 0.1);
+  --note-border: rgba(250, 204, 21, 0.25);
+  --muted: #8c8ca0;
+  --muted-dim: rgba(140, 140, 160, 0.1);
+  --muted-dim-md: rgba(140, 140, 160, 0.15);
+  --muted-border: rgba(140, 140, 160, 0.25);
+  --viet: #7ab3ff;
+  --viet-dim: rgba(0, 80, 200, 0.2);
+  --viet-border: rgba(0, 80, 200, 0.4);
+  --new: #00e676;
+  --new-dim: rgba(0, 200, 100, 0.1);
+  --new-dim-md: rgba(0, 200, 100, 0.15);
+  --new-border: rgba(0, 200, 100, 0.3);
+  // ── Utility overlays ─────────────────────────────────────────────────────────
+  --surface-xs: rgba(255, 255, 255, 0.02);
+  --surface-sm: rgba(255, 255, 255, 0.04);
+  --surface-md: rgba(255, 255, 255, 0.06);
+  --surface-lg: rgba(255, 255, 255, 0.1);
+  --overlay: rgba(0, 0, 0, 0.55);
+  --scrollbar-hover: #404060;
+  // ── Update/warning accent (yellow-gold) ──────────────────────────────────────
+  --warn: #ffd54f;
+  --warn-dim: rgba(255, 213, 79, 0.1);
+  --warn-dim-md: rgba(255, 213, 79, 0.18);
+  --warn-border: rgba(255, 213, 79, 0.35);
+  --warn-border-md: rgba(255, 213, 79, 0.6);
+  // ── Review/video accent (red-vivid) ─────────────────────────────────────────
+  --video: #ff6b6b;
+  --video-dim: rgba(255, 0, 0, 0.1);
+  --video-dim-md: rgba(255, 0, 0, 0.2);
+  --video-border: rgba(255, 0, 0, 0.3);
+  --video-border-md: rgba(255, 0, 0, 0.6);
+  // ── Hide/warning-amber ───────────────────────────────────────────────────────
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --amber-border: rgba(245, 158, 11, 0.4);
 }
 
 * {
@@ -46,7 +100,7 @@ html, body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #404060;
+  background: var(--scrollbar-hover);
 }
 
 button {

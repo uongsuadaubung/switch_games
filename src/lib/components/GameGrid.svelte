@@ -102,7 +102,7 @@
 
     &:hover {
       border-color: var(--accent);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 16px var(--overlay);
       transform: translateY(-2px);
       will-change: transform;
 
@@ -111,12 +111,12 @@
 
     &.selected {
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(205, 72, 51, 0.25);
+      box-shadow: 0 0 0 2px var(--accent-border);
     }
 
     &.checked {
       border-color: var(--accent);
-      background: rgba(205, 72, 51, 0.06);
+      background: var(--accent-dim-sm);
 
       .card-check { opacity: 1; }
     }
@@ -130,7 +130,7 @@
     top: 7px;
     left: 7px;
     z-index: 2;
-    background: rgba(0, 0, 0, 0.55);
+    background: var(--overlay);
     border-radius: 5px;
     width: 22px;
     height: 22px;
@@ -143,7 +143,7 @@
 
   .check-icon {
     font-size: 14px;
-    color: #fff;
+    color: var(--text-primary);
     line-height: 1;
   }
 
@@ -151,7 +151,7 @@
   .card-image {
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--surface-sm);
     overflow: hidden;
     flex-shrink: 0;
 
@@ -193,11 +193,11 @@
     font-weight: 700;
     backdrop-filter: blur(4px);
 
-    &.tag-new    { background: rgba(0, 200, 100, 0.2);   color: #00e676; border: 1px solid rgba(0,200,100,0.4); }
-    &.tag-fav    { background: rgba(255,100,130, 0.2);   color: #ff6482; border: 1px solid rgba(255,100,130,0.4); }
-    &.tag-note   { background: rgba(250,204,21, 0.2);    color: #facc15; border: 1px solid rgba(250,204,21,0.35); cursor: default; }
-    &.tag-hidden { background: rgba(140,140,160, 0.2);   color: #aaa;    border: 1px solid rgba(140,140,160,0.4); }
-    &.tag-viet   { background: rgba(0, 80, 200, 0.25);   color: #7ab3ff; border: 1px solid rgba(0,80,200,0.4); }
+    &.tag-new    { background: var(--new-dim-md);  color: var(--new);  border: 1px solid var(--new-border); }
+    &.tag-fav    { background: var(--fav-dim-md);  color: var(--fav);  border: 1px solid var(--fav-border); }
+    &.tag-note   { background: var(--note-dim);    color: var(--note); border: 1px solid var(--note-border); cursor: default; }
+    &.tag-hidden { background: var(--muted-dim-md); color: var(--muted); border: 1px solid var(--muted-border); }
+    &.tag-viet   { background: var(--viet-dim);    color: var(--viet); border: 1px solid var(--viet-border); }
   }
 
   // ── Body ───────────────────────────────────────────────────────────────────
