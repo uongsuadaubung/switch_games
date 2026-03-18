@@ -1,5 +1,4 @@
 export interface FileLink {
-  label: string;
   filename: string;
   url: string;
 }

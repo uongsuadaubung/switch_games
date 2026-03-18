@@ -39,3 +39,35 @@ jobs:
           gh release upload ${{ github.event.release.tag_name }} `
             "src-tauri/target/release/switch-games.exe" `
             --clobber
+
+  deploy-web:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # cần để push vào branch web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build for GitHub Pages
+        run: npm run build
+        env:
+          DEPLOY_TARGET: gh-pages
+
+      - name: Deploy to branch web
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: web
+          publish_dir: ./build
+          force_orphan: true          # giữ history gọn — chỉ 1 commit mỗi lần deploy
+          user_name: uongsuadaubung
+          user_email: manhkien13041997@gmail.com
+          commit_message: "🚀 Deploy - ${{ github.event.release.tag_name }}"

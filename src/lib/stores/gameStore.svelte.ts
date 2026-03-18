@@ -15,7 +15,7 @@ import {
 } from "$lib/constants";
 import { IS_BROWSER } from "$lib/environment";
 
-// ── Cache helpers (Tauri ↔ disk) ──────────────────────────────────────────────
+// ── Cache helpers (Tauri ↔ disk || Browser ↔ localStorage) ──────────────────────────────────────────────
 
 async function cacheReadHash(): Promise<string | null> {
   if (!IS_BROWSER) {
@@ -70,7 +70,15 @@ async function cacheWriteGames(games: Game[]): Promise<void> {
       console.warn("Không ghi được games cache:", e);
     }
   } else {
-    localStorage.setItem(STORAGE_GAMES_CACHE, JSON.stringify(games));
+    try {
+      localStorage.setItem(STORAGE_GAMES_CACHE, JSON.stringify(games));
+    } catch (e) {
+      // QuotaExceededError: games.json vượt giới hạn ~5MB của localStorage.
+      // Xóa cả hash để lần sau bắt buộc fetch lại thay vì dùng cache lỗi.
+      console.warn("Không ghi được games cache vào localStorage (quota?):", e);
+      localStorage.removeItem(STORAGE_GAMES_CACHE);
+      localStorage.removeItem(STORAGE_VERSION_HASH);
+    }
   }
 }
 
