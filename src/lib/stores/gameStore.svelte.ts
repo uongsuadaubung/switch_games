@@ -1,47 +1,76 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Game } from "$lib/types";
-import { VERSION_JSON_URL, GAMES_JSON_URL } from "$lib/constants";
+import {
+  VERSION_JSON_URL,
+  GAMES_JSON_URL,
+  CMD_READ_VERSION_HASH,
+  CMD_WRITE_VERSION_HASH,
+  CMD_READ_GAMES_CACHE,
+  CMD_WRITE_GAMES_CACHE,
+  CMD_OPEN_URL,
+  CMD_OPEN_URLS,
+  STORAGE_VIEW_MODE,
+  STORAGE_VERSION_HASH,
+  STORAGE_GAMES_CACHE,
+} from "$lib/constants";
 import { IS_BROWSER } from "$lib/environment";
 
 // ── Cache helpers (Tauri ↔ disk) ──────────────────────────────────────────────
 
 async function cacheReadHash(): Promise<string | null> {
-  if (IS_BROWSER) return null;
-  try {
-    return await invoke<string | null>("read_version_hash");
-  } catch (e) {
-    console.warn("Không đọc được version hash từ disk:", e);
-    return null;
+  if (!IS_BROWSER) {
+    try {
+      return await invoke<string | null>(CMD_READ_VERSION_HASH);
+    } catch (e) {
+      console.warn("Không đọc được version hash từ disk:", e);
+      return null;
+    }
   }
+  return localStorage.getItem(STORAGE_VERSION_HASH);
 }
 
 async function cacheWriteHash(hash: string): Promise<void> {
-  if (IS_BROWSER) return;
-  try {
-    await invoke("write_version_hash", { hash });
-  } catch (e) {
-    console.warn("Không ghi được version hash:", e);
+  if (!IS_BROWSER) {
+    try {
+      await invoke(CMD_WRITE_VERSION_HASH, { hash });
+    } catch (e) {
+      console.warn("Không ghi được version hash:", e);
+    }
+  } else {
+    localStorage.setItem(STORAGE_VERSION_HASH, hash);
   }
 }
 
 async function cacheReadGames(): Promise<Game[] | null> {
-  if (IS_BROWSER) return null;
+  if (!IS_BROWSER) {
+    try {
+      const raw = await invoke<string | null>(CMD_READ_GAMES_CACHE);
+      if (!raw) return null;
+      return JSON.parse(raw) as Game[];
+    } catch (e) {
+      console.warn("Không đọc được games cache từ disk:", e);
+      return null;
+    }
+  }
   try {
-    const raw = await invoke<string | null>("read_games_cache");
+    const raw = localStorage.getItem(STORAGE_GAMES_CACHE);
     if (!raw) return null;
     return JSON.parse(raw) as Game[];
   } catch (e) {
-    console.warn("Không đọc được games cache từ disk:", e);
+    console.warn("Không đọc được games cache từ localStorage:", e);
     return null;
   }
 }
 
 async function cacheWriteGames(games: Game[]): Promise<void> {
-  if (IS_BROWSER) return;
-  try {
-    await invoke("write_games_cache", { data: JSON.stringify(games) });
-  } catch (e) {
-    console.warn("Không ghi được games cache:", e);
+  if (!IS_BROWSER) {
+    try {
+      await invoke(CMD_WRITE_GAMES_CACHE, { data: JSON.stringify(games) });
+    } catch (e) {
+      console.warn("Không ghi được games cache:", e);
+    }
+  } else {
+    localStorage.setItem(STORAGE_GAMES_CACHE, JSON.stringify(games));
   }
 }
 
@@ -75,7 +104,6 @@ function createGameStore() {
 
   // View mode — persist vào localStorage để nhớ sau khi restart
   type ViewMode = "table" | "grid";
-  const STORAGE_VIEW_MODE = "switch_games_view_mode";
   let viewMode = $state<ViewMode>(
     (localStorage.getItem(STORAGE_VIEW_MODE) as ViewMode | null) ?? "table"
   );
@@ -404,10 +432,10 @@ function createGameStore() {
 
   async function openUrl(url: string) {
     if (!url || url.trim() === "") return;
-    if (IS_BROWSER) {
-      window.open(url, "_blank", "noopener,noreferrer");
+    if (!IS_BROWSER) {
+      await invoke(CMD_OPEN_URL, { url });
     } else {
-      await invoke("open_url", { url });
+      window.open(url, "_blank", "noopener,noreferrer");
     }
   }
 
@@ -420,14 +448,14 @@ function createGameStore() {
     ]
       .map((l) => l.url || l.filename)
       .filter((u): u is string => Boolean(u));
-    if (IS_BROWSER) {
+    if (!IS_BROWSER) {
+      await invoke(CMD_OPEN_URLS, { urls });
+    } else {
       // Phải mở đồng bộ trong cùng call stack của user gesture.
       // setTimeout sẽ đưa callback ra ngoài gesture context → browser block.
       for (const url of urls) {
         window.open(url, "_blank", "noopener,noreferrer");
       }
-    } else {
-      await invoke("open_urls", { urls });
     }
   }
 

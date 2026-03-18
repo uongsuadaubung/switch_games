@@ -1,3 +1,7 @@
+<script lang="ts">
+  import { asset } from "$app/paths";
+</script>
+
 <div class="loading-screen">
   <div class="loading-content">
     <div class="spinner-ring">
@@ -7,7 +11,7 @@
           stroke-dasharray="80 200" stroke-linecap="round" />
       </svg>
       <div class="logo-inner">
-        <img src="/app-icon.png" alt="" class="loading-icon" />
+        <img src={asset("/app-icon.png")} alt="" class="loading-icon" />
       </div>
     </div>
 
