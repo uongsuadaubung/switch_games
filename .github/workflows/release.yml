@@ -11,12 +11,30 @@ jobs:
       contents: write   # cần để tạo release và upload artifacts
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
+
+      - name: Auto Bump Version from Tag
+        run: |
+          # refs/tags/v0.5.5 -> 0.5.5
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Bumping to version $VERSION"
+          node scripts/bump-version.mjs $VERSION
+
+      - name: Commit & Push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "chore: bump version to ${{ github.event.release.tag_name }} [skip ci]" || echo "No changes to commit"
+          git push
 
       - name: Install frontend dependencies
         run: npm install
@@ -50,7 +68,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies

@@ -2,7 +2,7 @@
  * true khi đang chạy bên trong Tauri webview (cả dev lẫn production).
  * false khi mở thẳng trên browser (vite devserver không qua Tauri).
  */
-export const IS_TAURI = "__TAURI_INTERNALS__" in window;
+export const IS_TAURI = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 /**
  * true khi Vite build ở chế độ development (npm run dev / tauri dev).
