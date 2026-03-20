@@ -30,3 +30,8 @@ export const CMD_OPEN_URLS          = "open_urls";
 export const STORAGE_VIEW_MODE    = "switch_games_view_mode";
 export const STORAGE_VERSION_HASH = "switch_games_version_hash";
 export const STORAGE_USER_META    = "switch_games_user_meta";
+
+// ── Layout & Animation ────────────────────────────────────────────────────────
+
+/** Thời gian animation mở/đóng LinksPanel (ms) — khớp với CSS transition flex-basis */
+export const PANEL_ANIM_MS = 220;

@@ -23,7 +23,7 @@
       ? games.findIndex(
           (g) =>
             g.game_id === store.selectedGame!.game_id &&
-            g.name === store.selectedGame!.name
+            g.name === store.selectedGame!.name,
         )
       : -1;
 
@@ -64,10 +64,18 @@
       />
     </div>
     <div class="th">#</div>
-    <button class="th th-sort" class:active={store.sortKey === "name"} onclick={() => store.toggleSort("name")}>
+    <button
+      class="th th-sort"
+      class:active={store.sortKey === "name"}
+      onclick={() => store.toggleSort("name")}
+    >
       Tên game{sortIcon("name")}
     </button>
-    <button class="th th-sort" class:active={store.sortKey === "size"} onclick={() => store.toggleSort("size")}>
+    <button
+      class="th th-sort"
+      class:active={store.sortKey === "size"}
+      onclick={() => store.toggleSort("size")}
+    >
       Kích thước{sortIcon("size")}
     </button>
     <div class="th">Thể loại</div>
@@ -100,8 +108,16 @@
         <div
           class="td td-check"
           role="cell"
-          onclick={(e) => { e.stopPropagation(); store.toggleCheck(game); }}
-          onkeydown={(e) => { if (e.key === " ") { e.stopPropagation(); store.toggleCheck(game); } }}
+          onclick={(e) => {
+            e.stopPropagation();
+            store.toggleCheck(game);
+          }}
+          onkeydown={(e) => {
+            if (e.key === " ") {
+              e.stopPropagation();
+              store.toggleCheck(game);
+            }
+          }}
           tabindex="-1"
         >
           <input
@@ -120,7 +136,12 @@
         <div class="td td-name" role="cell">
           <div class="name-cell">
             {#if game.image_url}
-              <img src={game.image_url} alt={game.name} class="game-thumb" loading="lazy" />
+              <img
+                src={game.image_url}
+                alt={game.name}
+                class="game-thumb"
+                loading="lazy"
+              />
             {/if}
             <div class="name-info">
               <span class="game-name">{game.name}</span>
@@ -202,7 +223,9 @@
     display: flex;
     align-items: center;
 
-    &.th-check { padding: 10px 8px 10px 14px; }
+    &.th-check {
+      padding: 10px 8px 10px 14px;
+    }
   }
 
   // Sortable header button
@@ -213,14 +236,18 @@
     text-align: left;
     user-select: none;
     border-radius: 4px;
-    transition: color 0.12s, background 0.12s;
+    transition:
+      color 0.12s,
+      background 0.12s;
 
     &:hover {
       color: var(--text-primary);
       background: var(--surface-md);
     }
 
-    &.active { color: var(--accent); }
+    &.active {
+      color: var(--accent);
+    }
   }
 
   // ── Row ──
@@ -232,12 +259,27 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 52px;
 
-    &:hover       { background: var(--bg-hover); }
-    &:focus       { outline: none; }
-    &:focus-within { outline: none; }
-    &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-    &.selected    { background: var(--accent-dim); border-bottom-color: var(--accent-border); }
-    &.checked     { background: var(--blue-dim-sm); border-bottom-color: var(--blue-border); }
+    &:hover {
+      background: var(--bg-hover);
+    }
+    &:focus {
+      outline: none;
+    }
+    &:focus-within {
+      outline: none;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    &.selected {
+      background: var(--accent-dim);
+      border-bottom-color: var(--accent-border);
+    }
+    &.checked {
+      background: var(--blue-dim-sm);
+      border-bottom-color: var(--blue-border);
+    }
     &.checked.selected {
       background: color-mix(in srgb, var(--accent-dim) 60%, var(--blue-dim-sm));
     }
@@ -250,9 +292,18 @@
     align-items: center;
     overflow: hidden;
 
-    &.td-check { padding: 9px 8px 9px 14px; }
-    &.td-num   { color: var(--text-secondary); font-size: 12px; }
-    &.td-size  { white-space: nowrap; color: var(--text-secondary); font-size: 12px; }
+    &.td-check {
+      padding: 9px 8px 9px 14px;
+    }
+    &.td-num {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    &.td-size {
+      white-space: nowrap;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
   }
 
   // ── Custom checkbox ──
@@ -266,7 +317,10 @@
     cursor: pointer;
     display: block;
     position: relative;
-    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+    transition:
+      background 0.12s,
+      border-color 0.12s,
+      box-shadow 0.12s;
     flex-shrink: 0;
 
     &:hover {
@@ -361,14 +415,38 @@
   }
 
   @keyframes newPulse {
-    0%, 100% { box-shadow: 0 0 0 0 transparent; }
-    50%       { box-shadow: 0 0 6px 1px var(--new-border); }
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+    50% {
+      box-shadow: 0 0 6px 1px var(--new-border);
+    }
   }
 
-  .tag-fav  { background: var(--fav-dim);  color: var(--fav);  border: 1px solid var(--fav-border);  padding: 1px 5px; }
-  .tag-note { background: var(--note-dim); color: var(--note); border: 1px solid var(--note-border); padding: 1px 5px; cursor: default; }
-  .tag-viet { background: var(--viet-dim); color: var(--viet); }
-  .tag-id   { background: var(--muted-dim-md); color: var(--text-secondary); font-family: monospace; font-size: 9px; }
+  .tag-fav {
+    background: var(--fav-dim);
+    color: var(--fav);
+    border: 1px solid var(--fav-border);
+    padding: 1px 5px;
+  }
+  .tag-note {
+    background: var(--note-dim);
+    color: var(--note);
+    border: 1px solid var(--note-border);
+    padding: 1px 5px;
+    cursor: default;
+  }
+  .tag-viet {
+    background: var(--viet-dim);
+    color: var(--viet);
+  }
+  .tag-id {
+    background: var(--muted-dim-md);
+    color: var(--text-secondary);
+    font-family: monospace;
+    font-size: 9px;
+  }
 
   // ── Genres ──
   .genres-wrap {

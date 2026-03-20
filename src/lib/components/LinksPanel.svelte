@@ -1,5 +1,7 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
+  import { fly } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
   import type { GameLink } from "$lib/types";
 
   /** Trả về emoji + CSS class dựa trên nội dung label */
@@ -31,7 +33,10 @@
 
 {#if store.selectedGame}
   {@const game = store.selectedGame}
-  <div class="links-panel">
+  <div
+    class="links-panel"
+    transition:fly={{ x: 300, duration: 220, easing: cubicOut }}
+  >
     <div class="panel-header">
       <div class="panel-title">
         <span>{game.name}</span>

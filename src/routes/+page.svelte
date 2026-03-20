@@ -56,9 +56,13 @@
       <FilterBar />
       <div class="table-panel-layout" class:has-panel={store.showLinksPanel}>
         {#if store.viewMode === "grid"}
-          <GameGrid />
+          <div class="view-wrapper">
+            <GameGrid />
+          </div>
         {:else}
-          <GameTable />
+          <div class="view-wrapper">
+            <GameTable />
+          </div>
         {/if}
         <LinksPanel />
       </div>
@@ -89,11 +93,27 @@
     min-height: 0;
 
     &.has-panel {
-      :global(.table-container),
-      :global(.grid-container) {
-        flex: 0 0 auto;
-        width: 62%;
+      .view-wrapper {
+        flex-basis: 62%;
       }
+    }
+  }
+
+  .view-wrapper {
+    flex: 0 0 100%;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+    transition: flex-basis 220ms cubic-bezier(0.25, 1, 0.5, 1);
+    animation: viewFadeIn 180ms ease;
+  }
+
+  @keyframes viewFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 
@@ -109,11 +129,19 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .error-icon { font-size: 40px; }
+  .error-icon {
+    font-size: 40px;
+  }
 
   .error-title {
     font-size: 16px;
@@ -140,8 +168,8 @@
     font-size: 13px;
     transition: opacity 0.15s;
 
-    &:hover { opacity: 0.85; }
+    &:hover {
+      opacity: 0.85;
+    }
   }
 </style>
-
-

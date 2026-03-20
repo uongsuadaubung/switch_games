@@ -1,23 +1,24 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
-
+  import { PANEL_ANIM_MS } from "$lib/constants";
   // ── Keyboard navigation ─────────────────────────────────────────────
   let gridEl = $state<HTMLDivElement | null>(null);
 
-  // Khi selectedGame thay đổi, scroll card đó vào view sau khi DOM reflow xong
-  // (dùng rAF vì LinksPanel mở → grid co lại → cần chờ layout xong mới scroll)
+  // Khi selectedGame thay đổi, scroll card đó vào view
+  // dùng rAF để chờ DOM render xong trước khi scrollIntoView
   $effect(() => {
     const game = store.selectedGame;
     if (!game || !gridEl) return;
     const games = store.filteredGames;
     const idx = games.findIndex(
-      (g) => g.game_id === game.game_id && g.name === game.name
+      (g) => g.game_id === game.game_id && g.name === game.name,
     );
     if (idx === -1) return;
-    requestAnimationFrame(() => {
+    // Chờ flex-basis transition xong mới scroll để tính đúng vị trí center
+    setTimeout(() => {
       const cards = gridEl!.querySelectorAll<HTMLElement>(".game-card");
-      cards[idx]?.scrollIntoView({ block: "nearest", inline: "nearest" });
-    });
+      cards[idx]?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }, PANEL_ANIM_MS + 10);
   });
 
   /** Tính số cột thực tế từ computed grid-template-columns */
@@ -40,7 +41,7 @@
       ? games.findIndex(
           (g) =>
             g.game_id === store.selectedGame!.game_id &&
-            g.name === store.selectedGame!.name
+            g.name === store.selectedGame!.name,
         )
       : -1;
 
@@ -77,7 +78,7 @@
     // Scroll card vào view
     if (gridEl) {
       const cards = gridEl.querySelectorAll<HTMLElement>(".game-card");
-      cards[nextIndex]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+      cards[nextIndex]?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
     }
   }
 </script>
@@ -96,8 +97,10 @@
     </div>
   {:else}
     <div class="game-grid" bind:this={gridEl}>
-      {#each store.filteredGames as game, i ((game.game_id || game.name) + '-' + i)}
-        {@const isSelected = store.selectedGame?.game_id === game.game_id && store.selectedGame?.name === game.name}
+      {#each store.filteredGames as game, i (game.game_id || game.name)}
+        {@const isSelected =
+          store.selectedGame?.game_id === game.game_id &&
+          store.selectedGame?.name === game.name}
         {@const isChecked = store.checkedKeys.has(game.game_id || game.name)}
         <div
           class="game-card"
@@ -112,8 +115,16 @@
           <!-- Checkbox overlay -->
           <div
             class="card-check"
-            onclick={(e) => { e.stopPropagation(); store.toggleCheck(game); }}
-            onkeydown={(e) => { if (e.key === " ") { e.stopPropagation(); store.toggleCheck(game); }}}
+            onclick={(e) => {
+              e.stopPropagation();
+              store.toggleCheck(game);
+            }}
+            onkeydown={(e) => {
+              if (e.key === " ") {
+                e.stopPropagation();
+                store.toggleCheck(game);
+              }
+            }}
             role="checkbox"
             tabindex="0"
             aria-checked={isChecked}
@@ -140,14 +151,24 @@
             {#if game.is_new || game.is_favorite || game.is_hidden || game.is_viet_hoa || game.note}
               <div class="card-status-tags">
                 {#if game.is_new}<span class="tag tag-new">✦ MỚI</span>{/if}
-                {#if game.is_favorite}<span class="tag tag-fav">❤ Yêu thích</span>{/if}
-                {#if game.is_hidden}<span class="tag tag-hidden">Đã ẩn</span>{/if}
-                {#if game.is_viet_hoa}<span class="tag tag-viet">Việt Hóa</span>{/if}
-                {#if game.note}<span class="tag tag-note" title={game.note}>📝</span>{/if}
+                {#if game.is_favorite}<span class="tag tag-fav"
+                    >❤ Yêu thích</span
+                  >{/if}
+                {#if game.is_hidden}<span class="tag tag-hidden">Đã ẩn</span
+                  >{/if}
+                {#if game.is_viet_hoa}<span class="tag tag-viet">Việt Hóa</span
+                  >{/if}
+                {#if game.note}<span class="tag tag-note" title={game.note}
+                    >📝</span
+                  >{/if}
               </div>
             {/if}
             {#if game.genres.length > 0}
-              <p class="card-genres">{game.genres.slice(0, 2).join(" · ")}{game.genres.length > 2 ? " ···" : ""}</p>
+              <p class="card-genres">
+                {game.genres.slice(0, 2).join(" · ")}{game.genres.length > 2
+                  ? " ···"
+                  : ""}
+              </p>
             {/if}
           </div>
         </div>
@@ -167,8 +188,9 @@
 
   .game-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, 200px);
     gap: 12px;
+    justify-content: space-evenly;
   }
 
   // ── Card ───────────────────────────────────────────────────────────────────
@@ -179,7 +201,10 @@
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s,
+      transform 0.1s;
     display: flex;
     flex-direction: column;
     content-visibility: auto;
@@ -191,7 +216,9 @@
       transform: translateY(-2px);
       will-change: transform;
 
-      .card-check { opacity: 1; }
+      .card-check {
+        opacity: 1;
+      }
     }
 
     &.selected {
@@ -203,10 +230,10 @@
       border-color: var(--accent);
       background: var(--accent-dim-sm);
 
-      .card-check { opacity: 1; }
+      .card-check {
+        opacity: 1;
+      }
     }
-
-
   }
 
   // ── Checkbox ───────────────────────────────────────────────────────────────
@@ -272,11 +299,32 @@
     line-height: 1.5;
     font-weight: 700;
 
-    &.tag-new    { background: var(--new-dim-md);   color: var(--new);   border: 1px solid var(--new-border); }
-    &.tag-fav    { background: var(--fav-dim-md);   color: var(--fav);   border: 1px solid var(--fav-border); }
-    &.tag-note   { background: var(--note-dim);     color: var(--note);  border: 1px solid var(--note-border); cursor: default; }
-    &.tag-hidden { background: var(--muted-dim-md); color: var(--muted); border: 1px solid var(--muted-border); }
-    &.tag-viet   { background: var(--viet-dim);     color: var(--viet);  border: 1px solid var(--viet-border); }
+    &.tag-new {
+      background: var(--new-dim-md);
+      color: var(--new);
+      border: 1px solid var(--new-border);
+    }
+    &.tag-fav {
+      background: var(--fav-dim-md);
+      color: var(--fav);
+      border: 1px solid var(--fav-border);
+    }
+    &.tag-note {
+      background: var(--note-dim);
+      color: var(--note);
+      border: 1px solid var(--note-border);
+      cursor: default;
+    }
+    &.tag-hidden {
+      background: var(--muted-dim-md);
+      color: var(--muted);
+      border: 1px solid var(--muted-border);
+    }
+    &.tag-viet {
+      background: var(--viet-dim);
+      color: var(--viet);
+      border: 1px solid var(--viet-border);
+    }
   }
 
   // ── Body ───────────────────────────────────────────────────────────────────
@@ -332,9 +380,14 @@
     padding: 60px 0;
     color: var(--text-secondary);
 
-    p { margin: 0; font-size: 14px; }
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
   }
 
-  .empty-icon { font-size: 40px; opacity: 0.4; }
+  .empty-icon {
+    font-size: 40px;
+    opacity: 0.4;
+  }
 </style>
-
