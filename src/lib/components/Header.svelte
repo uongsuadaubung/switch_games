@@ -24,11 +24,7 @@
       <span class="game-count">{store.filteredGames.length} / {store.allGames.length} games</span>
     {/if}
 
-    {#if store.newGameCount > 0}
-      <span class="new-badge" title="{store.newGameCount} game mới kể từ lần cập nhật trước">
-        ✦ {store.newGameCount} mới
-      </span>
-    {/if}
+
 
     {#if updateStore.hasUpdate}
       <a
@@ -100,22 +96,7 @@
   .app-title { font-size: 16px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
   .game-count { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
 
-  .new-badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--new);
-    background: var(--new-dim);
-    border: 1px solid var(--new-border);
-    border-radius: 20px;
-    padding: 3px 10px;
-    white-space: nowrap;
-    animation: badgePulse 2.5s ease-in-out infinite;
-  }
 
-  @keyframes badgePulse {
-    0%, 100% { box-shadow: 0 0 0 0 transparent; }
-    50%       { box-shadow: 0 0 8px 2px var(--new-border); }
-  }
 
   // ── Update badge ────────────────────────────────────────────────────────────
   .update-badge {

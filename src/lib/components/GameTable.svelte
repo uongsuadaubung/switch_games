@@ -1,10 +1,10 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
 
-  // Columns: [checkbox | # | Tên game | Kích thước | Thể loại | Links]
-  const COL_TEMPLATE = "36px 44px 2fr 1fr 1fr 1fr";
+  // Columns: [checkbox | # | Tên game | Kích thước | Thể loại]
+  const COL_TEMPLATE = "36px 44px 2fr 1fr 1fr";
 
-  function sortIcon(key: "name" | "size" | "genres" | "links"): string {
+  function sortIcon(key: "name" | "size"): string {
     if (store.sortKey !== key) return "";
     return store.sortDir === "asc" ? " ▲" : " ▼";
   }
@@ -30,7 +30,6 @@
       Kích thước{sortIcon("size")}
     </button>
     <div class="th">Thể loại</div>
-    <div class="th">Links</div>
   </div>
 
   <!-- ── Body ── -->
@@ -107,16 +106,6 @@
             {#each game.genres as genre}
               <span class="genre-chip">{genre}</span>
             {/each}
-          </div>
-        </div>
-
-        <!-- Links -->
-        <div class="td td-links" role="cell">
-          <div class="link-counts">
-            {#if game.links.base.length > 0}<span class="lc base">B</span>{/if}
-            {#if game.links.update.length > 0}<span class="lc update">U</span>{/if}
-            {#if game.links.dlc.length > 0}<span class="lc dlc">D</span>{/if}
-            {#if game.links.viet_hoa.length > 0}<span class="lc vh">VH</span>{/if}
           </div>
         </div>
       </div>
@@ -344,25 +333,6 @@
     white-space: nowrap;
   }
 
-  // ── Link badges ──
-  .link-counts {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
-
-  .lc {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 3px;
-
-    &.base   { background: var(--green-dim);  color: var(--green); }
-    &.update { background: var(--blue-dim);   color: var(--blue); }
-    &.dlc    { background: var(--yellow-dim); color: var(--yellow); }
-    &.vh     { background: var(--viet-dim);   color: var(--viet); }
-  }
-
   // ── Empty state ──
   .no-results {
     padding: 40px;
@@ -370,4 +340,3 @@
     color: var(--text-secondary);
   }
 </style>
-

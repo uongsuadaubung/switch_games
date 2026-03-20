@@ -448,13 +448,8 @@ function createGameStore() {
   }
 
   async function openAllLinks(game: Game) {
-    const urls = [
-      ...game.links.base,
-      ...game.links.update,
-      ...game.links.dlc,
-      ...game.links.viet_hoa,
-    ]
-      .map((l) => l.url || l.filename)
+    const urls = game.links
+      .map((l) => l.url || l.file_name)
       .filter((u): u is string => Boolean(u));
     if (!IS_BROWSER) {
       await invoke(CMD_OPEN_URLS, { urls });

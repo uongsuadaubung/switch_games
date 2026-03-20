@@ -1,14 +1,25 @@
 <script lang="ts">
   import { store } from "$lib/stores/gameStore.svelte";
-  import type { GameLinks } from "$lib/types";
+  import type { GameLink } from "$lib/types";
 
-  // Config cho các section link — thêm loại mới tại đây
-  const LINK_SECTIONS: { key: keyof GameLinks; label: string; cls: string }[] = [
-    { key: "base",     label: "📁 Base Game", cls: "base-label"   },
-    { key: "update",   label: "🔄 Update",    cls: "update-label" },
-    { key: "dlc",      label: "🎁 DLC",       cls: "dlc-label"    },
-    { key: "viet_hoa", label: "🇻🇳 Việt hóa", cls: "vh-label"    },
-  ];
+  /** Trả về emoji + CSS class dựa trên nội dung label */
+  function linkMeta(link: GameLink): { emoji: string; cls: string } {
+    const l = link.label.toLowerCase();
+    if (l.includes("việt hóa") || l.includes("viet hoa"))
+      return { emoji: "🇻🇳", cls: "link-vh" };
+    if (l.includes("dlc") || l.includes("expansion") || l.includes("season"))
+      return { emoji: "🎁", cls: "link-dlc" };
+    if (
+      l.includes("update") ||
+      l.includes("cập nhật") ||
+      l.includes("cap nhat")
+    )
+      return { emoji: "🔄", cls: "link-update" };
+    if (l.includes("base")) return { emoji: "📁", cls: "link-base" };
+    if (l.includes("dự phòng") || l.includes("du phong"))
+      return { emoji: "🔗", cls: "link-backup" };
+    return { emoji: "📎", cls: "link-other" };
+  }
 
   // Draft note cục bộ — chỉ gửi lên store khi blur để tránh cache write từng phím
   let noteDraft = $state("");
@@ -41,7 +52,9 @@
       <span>📦 {game.size}</span>
       {#if game.game_id}<span>🆔 {game.game_id}</span>{/if}
       {#if game.genres.length > 0}<span>🎯 {game.genres.join(", ")}</span>{/if}
-      {#if game.links.required_firmware}<span>⚙️ Firmware {game.links.required_firmware}</span>{/if}
+      {#if game.required_firmware}<span class="firmware-badge"
+          >⚙️ Firmware {game.required_firmware}</span
+        >{/if}
     </div>
 
     <div class="panel-actions">
@@ -107,27 +120,31 @@
       {/if}
     {/if}
 
-    <div class="links-sections">
-      {#each LINK_SECTIONS as section}
-        {@const links = game.links[section.key]}
-        {#if Array.isArray(links) && links.length > 0}
-          <div class="link-section">
-            <div class="section-header">
-              <span class="section-label {section.cls}">{section.label}</span>
-            </div>
-            {#each links as link}
-              <div class="link-item">
-                <span class="filename">{link.filename}</span>
-                <button class="btn-open-link" onclick={() => store.openUrl(link.url || link.filename)}>Mở</button>
-              </div>
-            {/each}
+    <div class="links-list">
+      {#each game.links as link}
+        {@const meta = linkMeta(link)}
+        <div class="link-item">
+          <div class="link-info">
+            <span class="link-label {meta.cls}">{meta.emoji} {link.label}</span>
+            {#if link.file_name}
+              <span class="filename">{link.file_name}</span>
+            {/if}
           </div>
-        {/if}
+          <div class="link-actions">
+            <button
+              class="btn-open-link"
+              onclick={() => store.openUrl(link.url)}>Mở</button
+            >
+          </div>
+        </div>
       {/each}
+
+      {#if game.links.length === 0}
+        <div class="no-links">Chưa có link tải</div>
+      {/if}
     </div>
   </div>
 {/if}
-
 
 <style lang="scss">
   .links-panel {
@@ -154,10 +171,21 @@
     flex: 1;
     min-width: 0;
 
-    > span:first-child { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.3; word-break: break-word; }
+    > span:first-child {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+      word-break: break-word;
+    }
   }
 
-  .note-badge { font-size: 14px; flex-shrink: 0; opacity: 0.8; cursor: default; }
+  .note-badge {
+    font-size: 14px;
+    flex-shrink: 0;
+    opacity: 0.8;
+    cursor: default;
+  }
 
   .close-btn {
     background: var(--bg-card);
@@ -172,7 +200,10 @@
     font-size: 12px;
     flex-shrink: 0;
 
-    &:hover { border-color: var(--accent); color: var(--accent); }
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
   }
 
   .panel-image {
@@ -180,7 +211,14 @@
     flex-shrink: 0;
     border-bottom: 1px solid var(--border);
 
-    img { width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; display: block; margin: 10px 0; }
+    img {
+      width: 100%;
+      max-height: 160px;
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+      margin: 10px 0;
+    }
   }
 
   .panel-meta {
@@ -192,6 +230,16 @@
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+  }
+
+  .firmware-badge {
+    background: var(--amber-dim);
+    color: var(--amber);
+    padding: 1px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    border: 1px solid var(--amber-border);
   }
 
   .panel-actions {
@@ -211,7 +259,9 @@
     font-weight: 600;
     font-size: 13px;
 
-    &:hover { background: var(--accent-hover); }
+    &:hover {
+      background: var(--accent-hover);
+    }
   }
 
   .btn-review {
@@ -223,8 +273,14 @@
     font-size: 13px;
     font-weight: 600;
 
-    &:hover { background: var(--video-dim-md); }
-    &.active { background: var(--video-dim-md); border-color: var(--video-border-md); color: var(--video); }
+    &:hover {
+      background: var(--video-dim-md);
+    }
+    &.active {
+      background: var(--video-dim-md);
+      border-color: var(--video-border-md);
+      color: var(--video);
+    }
   }
 
   .btn-hide {
@@ -235,10 +291,19 @@
     padding: 8px 12px;
     font-size: 13px;
     font-weight: 600;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
 
-    &:hover { background: var(--muted-dim-md); color: var(--text-primary); }
-    &.active { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); }
+    &:hover {
+      background: var(--muted-dim-md);
+      color: var(--text-primary);
+    }
+    &.active {
+      background: var(--amber-dim);
+      border-color: var(--amber-border);
+      color: var(--amber);
+    }
   }
 
   .btn-favorite {
@@ -249,10 +314,19 @@
     padding: 8px 12px;
     font-size: 13px;
     font-weight: 600;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
 
-    &:hover { background: var(--fav-dim-md); color: var(--fav); }
-    &.active { background: var(--fav-dim-md); border-color: var(--fav); color: var(--fav); }
+    &:hover {
+      background: var(--fav-dim-md);
+      color: var(--fav);
+    }
+    &.active {
+      background: var(--fav-dim-md);
+      border-color: var(--fav);
+      color: var(--fav);
+    }
   }
 
   .note-section {
@@ -286,8 +360,14 @@
     min-height: 60px;
     transition: border-color 0.15s;
 
-    &:focus { border-color: var(--accent); outline: none; }
-    &::placeholder { color: var(--text-secondary); opacity: 0.6; }
+    &:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    &::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
   }
 
   .yt-embed-wrap {
@@ -305,72 +385,98 @@
     display: block;
   }
 
-  .links-sections {
+  .links-list {
     padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 
-    .link-section {
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
+      border-radius: 8px;
+      transition: border-color 0.15s;
 
-      .section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        border-bottom: 1px solid var(--border);
-        background: var(--surface-xs);
+      &:hover {
+        border-color: var(--accent-border-md);
       }
 
-      .section-label {
+      .link-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .link-label {
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
 
-        &.base-label   { color: var(--green); }
-        &.update-label { color: var(--blue); }
-        &.dlc-label    { color: var(--yellow); }
-        &.vh-label     { color: var(--viet); }
+        &.link-base {
+          color: var(--green);
+        }
+        &.link-update {
+          color: var(--blue);
+        }
+        &.link-dlc {
+          color: var(--yellow);
+        }
+        &.link-vh {
+          color: var(--viet);
+        }
+        &.link-backup {
+          color: var(--amber);
+        }
+        &.link-other {
+          color: var(--text-secondary);
+        }
       }
 
-      .link-item {
+      .filename {
+        color: var(--text-secondary);
+        word-break: break-all;
+        font-family: monospace;
+        font-size: 10px;
+        opacity: 0.7;
+      }
+
+      .link-actions {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 7px 12px;
-        border-bottom: 1px solid var(--border);
+        gap: 4px;
+        flex-shrink: 0;
+      }
 
-        &:last-child { border-bottom: none; }
+      .btn-open-link {
+        flex-shrink: 0;
+        font-size: 11px;
+        padding: 3px 10px;
+        background: var(--accent-dim);
+        border: 1px solid var(--accent-border-md);
+        border-radius: 6px;
+        color: var(--accent);
+        font-weight: 600;
 
-        .filename {
-          flex: 1;
-          color: var(--text-secondary);
-          word-break: break-all;
-          font-family: monospace;
-          font-size: 11px;
-        }
-
-        .btn-open-link {
-          flex-shrink: 0;
-          font-size: 11px;
-          padding: 3px 10px;
-          background: var(--accent-dim);
-          border: 1px solid var(--accent-border-md);
-          border-radius: 5px;
-          color: var(--accent);
-          font-weight: 600;
-
-          &:hover { background: var(--accent); color: white; }
+        &:hover {
+          background: var(--accent);
+          color: white;
         }
       }
     }
   }
+
+  .no-links {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    opacity: 0.6;
+  }
 </style>
-
-

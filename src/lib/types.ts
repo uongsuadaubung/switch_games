@@ -1,14 +1,7 @@
-export interface FileLink {
-  filename: string;
+export interface GameLink {
+  label: string;
+  file_name: string;
   url: string;
-}
-
-export interface GameLinks {
-  base: FileLink[];
-  update: FileLink[];
-  dlc: FileLink[];
-  viet_hoa: FileLink[];
-  required_firmware: string;
 }
 
 export interface Game {
@@ -27,6 +20,8 @@ export interface Game {
   size: string;
   genres: string[];
   review_url: string;
-  sheets: string[];
-  links: GameLinks;
+  /** Ngày thêm vào data */
+  added_at?: string;
+  links: GameLink[];
+  required_firmware: string;
 }
