@@ -4,7 +4,7 @@ use std::fs;
 use std::path::PathBuf;
 
 const USER_META_FILE: &str = "user_meta.json";
-const HASH_FILE:      &str = "version_hash.txt";
+
 
 /// Trả về app data dir (tạo nếu chưa có)
 fn get_app_data_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -60,29 +60,6 @@ pub async fn write_user_meta(app: tauri::AppHandle, data: String) -> Result<(), 
     let path = get_app_data_dir(&app)?.join(USER_META_FILE);
     fs::write(&path, data.as_bytes())
         .map_err(|e| format!("Không ghi được user meta cache: {e}"))?;
-    Ok(())
-}
-
-// ── Cache: đọc/ghi version hash ──────────────────────────────────────────────
-
-/// Đọc version hash đã lưu lần trước, None nếu chưa có
-#[tauri::command]
-pub async fn read_version_hash(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    let path = get_app_data_dir(&app)?.join(HASH_FILE);
-    if !path.exists() {
-        return Ok(None);
-    }
-    let hash = fs::read_to_string(&path)
-        .map_err(|e| format!("Không đọc được hash: {e}"))?;
-    Ok(Some(hash.trim().to_string()))
-}
-
-/// Ghi version hash mới ra disk
-#[tauri::command]
-pub async fn write_version_hash(app: tauri::AppHandle, hash: String) -> Result<(), String> {
-    let path = get_app_data_dir(&app)?.join(HASH_FILE);
-    fs::write(&path, hash.as_bytes())
-        .map_err(|e| format!("Không ghi được hash: {e}"))?;
     Ok(())
 }
 

@@ -1,45 +1,17 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Game, UserMetaMap } from "$lib/types";
 import {
-  VERSION_JSON_URL,
   GAMES_JSON_URL,
-  CMD_READ_VERSION_HASH,
-  CMD_WRITE_VERSION_HASH,
   CMD_READ_USER_META,
   CMD_WRITE_USER_META,
   CMD_OPEN_URL,
   CMD_OPEN_URLS,
   STORAGE_VIEW_MODE,
-  STORAGE_VERSION_HASH,
   STORAGE_USER_META,
 } from "$lib/constants";
 import { IS_BROWSER } from "$lib/environment";
 
 // ── Cache helpers (Tauri ↔ disk || Browser ↔ localStorage) ──────────────────────────────────────────────
-
-async function cacheReadHash(): Promise<string | null> {
-  if (!IS_BROWSER) {
-    try {
-      return await invoke<string | null>(CMD_READ_VERSION_HASH);
-    } catch (e) {
-      console.warn("Không đọc được version hash từ disk:", e);
-      return null;
-    }
-  }
-  return localStorage.getItem(STORAGE_VERSION_HASH);
-}
-
-async function cacheWriteHash(hash: string): Promise<void> {
-  if (!IS_BROWSER) {
-    try {
-      await invoke(CMD_WRITE_VERSION_HASH, { hash });
-    } catch (e) {
-      console.warn("Không ghi được version hash:", e);
-    }
-  } else {
-    localStorage.setItem(STORAGE_VERSION_HASH, hash);
-  }
-}
 
 /**
  * Đọc user metadata cache — chỉ chứa is_hidden, is_favorite, note.
@@ -83,7 +55,7 @@ async function cacheWriteUserMeta(meta: UserMetaMap): Promise<void> {
     } catch (e) {
       console.warn("Không ghi được user meta cache vào localStorage:", e);
       localStorage.removeItem(STORAGE_USER_META);
-      localStorage.removeItem(STORAGE_VERSION_HASH);
+
     }
   }
 }
@@ -428,17 +400,6 @@ function createGameStore() {
 
       // ── 3. Merge user metadata lên fresh games ────────────────────────────
       allGames = userMeta ? applyUserMeta(freshGames, userMeta) : freshGames;
-
-      // ── 4. Fetch + lưu version hash (cho tương lai nếu cần) ───────────────
-      try {
-        const versionRes = await fetch(VERSION_JSON_URL, { cache: "no-cache" });
-        if (versionRes.ok) {
-          const versionData: { hash: string } = await versionRes.json();
-          cacheWriteHash(versionData.hash);
-        }
-      } catch {
-        // Không ảnh hưởng — hash chỉ là metadata phụ
-      }
 
     } catch (e) {
       console.error("Fetch error:", e);

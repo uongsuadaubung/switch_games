@@ -40,9 +40,6 @@
     <div class="panel-header">
       <div class="panel-title">
         <span>{game.name}</span>
-        {#if game.note}
-          <span class="note-badge" title={game.note}>📝</span>
-        {/if}
       </div>
       <button class="close-btn" onclick={store.closePanel}>✕</button>
     </div>
@@ -191,12 +188,6 @@
     }
   }
 
-  .note-badge {
-    font-size: 14px;
-    flex-shrink: 0;
-    opacity: 0.8;
-    cursor: default;
-  }
 
   .close-btn {
     background: var(--bg-card);
