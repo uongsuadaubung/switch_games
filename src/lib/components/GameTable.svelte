@@ -8,6 +8,47 @@
     if (store.sortKey !== key) return "";
     return store.sortDir === "asc" ? " ▲" : " ▼";
   }
+
+  // ── Keyboard navigation ──────────────────────────────────────────────────
+  let tableBodyEl = $state<HTMLDivElement | null>(null);
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    const games = store.filteredGames;
+    if (games.length === 0) return;
+
+    e.preventDefault();
+
+    const currentIndex = store.selectedGame
+      ? games.findIndex(
+          (g) =>
+            g.game_id === store.selectedGame!.game_id &&
+            g.name === store.selectedGame!.name
+        )
+      : -1;
+
+    let nextIndex: number;
+    if (currentIndex === -1) {
+      nextIndex = e.key === "ArrowDown" ? 0 : games.length - 1;
+    } else {
+      nextIndex =
+        e.key === "ArrowDown"
+          ? Math.min(currentIndex + 1, games.length - 1)
+          : Math.max(currentIndex - 1, 0);
+    }
+
+    if (nextIndex === currentIndex) return;
+    store.navigateGame(games[nextIndex]);
+
+    // Chuyển DOM focus về container — gỡ bỏ outline khỏi row cũ
+    (e.currentTarget as HTMLElement).focus({ preventScroll: true });
+
+    // Scroll row vào view
+    if (tableBodyEl) {
+      const rows = tableBodyEl.querySelectorAll<HTMLElement>(".game-row");
+      rows[nextIndex]?.scrollIntoView({ block: "nearest" });
+    }
+  }
 </script>
 
 <div class="table-container">
@@ -33,7 +74,14 @@
   </div>
 
   <!-- ── Body ── -->
-  <div class="table-body">
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <div
+    class="table-body"
+    role="listbox"
+    tabindex="0"
+    bind:this={tableBodyEl}
+    onkeydown={handleKeydown}
+  >
     {#each store.filteredGames as game, i (game.game_id || game.name)}
       {@const key = game.game_id || game.name}
       {@const isChecked = store.checkedKeys.has(key)}
@@ -128,6 +176,11 @@
     flex-direction: column;
   }
 
+  .table-body {
+    flex: 1;
+    outline: none;
+  }
+
   // ── Header ──
   .table-header {
     display: grid;
@@ -181,6 +234,7 @@
 
     &:hover       { background: var(--bg-hover); }
     &:focus       { outline: none; }
+    &:focus-within { outline: none; }
     &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
     &.selected    { background: var(--accent-dim); border-bottom-color: var(--accent-border); }
     &.checked     { background: var(--blue-dim-sm); border-bottom-color: var(--blue-border); }

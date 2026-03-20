@@ -1,17 +1,17 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Game } from "$lib/types";
+import type { Game, UserMetaMap } from "$lib/types";
 import {
   VERSION_JSON_URL,
   GAMES_JSON_URL,
   CMD_READ_VERSION_HASH,
   CMD_WRITE_VERSION_HASH,
-  CMD_READ_GAMES_CACHE,
-  CMD_WRITE_GAMES_CACHE,
+  CMD_READ_USER_META,
+  CMD_WRITE_USER_META,
   CMD_OPEN_URL,
   CMD_OPEN_URLS,
   STORAGE_VIEW_MODE,
   STORAGE_VERSION_HASH,
-  STORAGE_GAMES_CACHE,
+  STORAGE_USER_META,
 } from "$lib/constants";
 import { IS_BROWSER } from "$lib/environment";
 
@@ -41,45 +41,82 @@ async function cacheWriteHash(hash: string): Promise<void> {
   }
 }
 
-async function cacheReadGames(): Promise<Game[] | null> {
+/**
+ * Đọc user metadata cache — chỉ chứa is_hidden, is_favorite, note.
+ * Dữ liệu rất nhẹ so với toàn bộ games.json.
+ */
+async function cacheReadUserMeta(): Promise<UserMetaMap | null> {
   if (!IS_BROWSER) {
     try {
-      const raw = await invoke<string | null>(CMD_READ_GAMES_CACHE);
+      const raw = await invoke<string | null>(CMD_READ_USER_META);
       if (!raw) return null;
-      return JSON.parse(raw) as Game[];
+      return JSON.parse(raw) as UserMetaMap;
     } catch (e) {
-      console.warn("Không đọc được games cache từ disk:", e);
+      console.warn("Không đọc được user meta cache từ disk:", e);
       return null;
     }
   }
   try {
-    const raw = localStorage.getItem(STORAGE_GAMES_CACHE);
+    const raw = localStorage.getItem(STORAGE_USER_META);
     if (!raw) return null;
-    return JSON.parse(raw) as Game[];
+    return JSON.parse(raw) as UserMetaMap;
   } catch (e) {
-    console.warn("Không đọc được games cache từ localStorage:", e);
+    console.warn("Không đọc được user meta cache từ localStorage:", e);
     return null;
   }
 }
 
-async function cacheWriteGames(games: Game[]): Promise<void> {
+/**
+ * Ghi user metadata cache.
+ * Dữ liệu chỉ gồm { game_id: { is_hidden, is_favorite, note } } — rất nhẹ.
+ */
+async function cacheWriteUserMeta(meta: UserMetaMap): Promise<void> {
   if (!IS_BROWSER) {
     try {
-      await invoke(CMD_WRITE_GAMES_CACHE, { data: JSON.stringify(games) });
+      await invoke(CMD_WRITE_USER_META, { data: JSON.stringify(meta) });
     } catch (e) {
-      console.warn("Không ghi được games cache:", e);
+      console.warn("Không ghi được user meta cache:", e);
     }
   } else {
     try {
-      localStorage.setItem(STORAGE_GAMES_CACHE, JSON.stringify(games));
+      localStorage.setItem(STORAGE_USER_META, JSON.stringify(meta));
     } catch (e) {
-      // QuotaExceededError: games.json vượt giới hạn ~5MB của localStorage.
-      // Xóa cả hash để lần sau bắt buộc fetch lại thay vì dùng cache lỗi.
-      console.warn("Không ghi được games cache vào localStorage (quota?):", e);
-      localStorage.removeItem(STORAGE_GAMES_CACHE);
+      console.warn("Không ghi được user meta cache vào localStorage:", e);
+      localStorage.removeItem(STORAGE_USER_META);
       localStorage.removeItem(STORAGE_VERSION_HASH);
     }
   }
+}
+
+/** Trích xuất user metadata từ allGames → UserMetaMap (chỉ giữ game có metadata) */
+function extractUserMeta(games: Game[]): UserMetaMap {
+  const meta: UserMetaMap = {};
+  for (const g of games) {
+    const key = g.game_id || g.name;
+    if (g.is_hidden || g.is_favorite || g.note) {
+      meta[key] = {
+        ...(g.is_hidden   ? { is_hidden: true }   : {}),
+        ...(g.is_favorite ? { is_favorite: true } : {}),
+        ...(g.note        ? { note: g.note }       : {}),
+      };
+    }
+  }
+  return meta;
+}
+
+/** Merge user metadata lên freshGames từ API */
+function applyUserMeta(games: Game[], meta: UserMetaMap): Game[] {
+  return games.map((g) => {
+    const key = g.game_id || g.name;
+    const m = meta[key];
+    if (!m) return g;
+    return {
+      ...g,
+      ...(m.is_hidden   ? { is_hidden: true }   : {}),
+      ...(m.is_favorite ? { is_favorite: true } : {}),
+      ...(m.note        ? { note: m.note }       : {}),
+    };
+  });
 }
 
 
@@ -113,7 +150,7 @@ function createGameStore() {
   // View mode — persist vào localStorage để nhớ sau khi restart
   type ViewMode = "table" | "grid";
   let viewMode = $state<ViewMode>(
-    (localStorage.getItem(STORAGE_VIEW_MODE) as ViewMode | null) ?? "table"
+    (localStorage.getItem(STORAGE_VIEW_MODE) as ViewMode | null) ?? "grid"
   );
 
   // Search input element ref (dùng cho keyboard shortcut Ctrl+F)
@@ -256,7 +293,7 @@ function createGameStore() {
     allGames = allGames.map((g) =>
       gameKey(g) === key ? { ...g, is_hidden: nowHidden } : g
     );
-    cacheWriteGames(allGames);
+    cacheWriteUserMeta(extractUserMeta(allGames));
     closePanelIfAffected(new Set([key]));
     if (!nowHidden) exitHiddenFilterIfEmpty();
   }
@@ -264,6 +301,13 @@ function createGameStore() {
   function selectGame(game: Game) {
     selectedGame = game;
     showLinksPanel = true;
+    showYoutube = false;
+  }
+
+  /** Di chuyển highlight bằng bàn phím — không mở/đóng panel */
+  function navigateGame(game: Game) {
+    selectedGame = game;
+    // Giữ nguyên showLinksPanel — nếu panel đang mở thì cập nhật nội dung theo game mới
     showYoutube = false;
   }
 
@@ -314,7 +358,7 @@ function createGameStore() {
     allGames = allGames.map((g) =>
       keys.has(gameKey(g)) ? { ...g, is_hidden: true } : g
     );
-    cacheWriteGames(allGames);
+    cacheWriteUserMeta(extractUserMeta(allGames));
     checkedKeys = new Set();
     closePanelIfAffected(keys);
   }
@@ -325,7 +369,7 @@ function createGameStore() {
     allGames = allGames.map((g) =>
       keys.has(gameKey(g)) ? { ...g, is_hidden: false } : g
     );
-    cacheWriteGames(allGames);
+    cacheWriteUserMeta(extractUserMeta(allGames));
     checkedKeys = new Set();
     closePanelIfAffected(keys);
     exitHiddenFilterIfEmpty();
@@ -342,7 +386,7 @@ function createGameStore() {
     if (selectedGame && gameKey(selectedGame) === key) {
       selectedGame = { ...selectedGame, is_favorite: nowFavorite };
     }
-    cacheWriteGames(allGames);
+    cacheWriteUserMeta(extractUserMeta(allGames));
     // Nếu bỏ yêu thích và hết game nào trong danh sách → tự thoát filter
     if (!nowFavorite) exitFavoriteFilterIfEmpty();
   }
@@ -358,81 +402,47 @@ function createGameStore() {
     if (selectedGame && gameKey(selectedGame) === key) {
       selectedGame = { ...selectedGame, note: trimmed };
     }
-    cacheWriteGames(allGames);
+    cacheWriteUserMeta(extractUserMeta(allGames));
   }
 
   /**
    * Fetch flow:
-   * 1. Fetch version.json → lấy hash
-   * 2. Đọc hash + cache từ disk
-   *    - Giống → dùng cache ngay
-   *    - Khác  → fetch games.json, merge với cache (giữ is_hidden, is_new metadata)
-   * 3. Fallback khi lỗi mạng: dùng cache trên disk
+   * 1. Fetch games.json từ API (luôn luôn)
+   * 2. Đọc user metadata cache (is_hidden, is_favorite, note) — rất nhẹ
+   * 3. Merge user metadata lên dữ liệu fresh từ API
+   * 4. Lưu hash mới vào cache
    */
   async function fetchGames() {
     isLoading = true;
     loadError = null;
 
     try {
-      // ── 1. Fetch version.json ──────────────────────────────────────────────
-      const versionRes = await fetch(VERSION_JSON_URL);
-      if (!versionRes.ok)
-        throw new Error(`version.json HTTP ${versionRes.status}`);
-      const versionData: { hash: string; timestamp: string; game_count: number } =
-        await versionRes.json();
-      const remoteHash = versionData.hash;
-
-      // ── 2. Đọc từ disk ────────────────────────────────────────────────────
-      const [localHash, cachedGames] = await Promise.all([
-        cacheReadHash(),
-        cacheReadGames(),
-      ]);
-
-      // ── 3a. Hash không đổi + có cache → dùng luôn ────────────────────────
-      if (remoteHash === localHash && cachedGames) {
-        allGames = cachedGames;
-        return;
-      }
-
-      // ── 3b. Hash mới → fetch games.json, merge ────────────────────────────
-      const gamesRes = await fetch(GAMES_JSON_URL);
+      // ── 1. Fetch games.json từ API (no-cache → luôn revalidate, tránh disk cache cũ) ──
+      const gamesRes = await fetch(GAMES_JSON_URL, { cache: "no-cache" });
       if (!gamesRes.ok)
         throw new Error(`games.json HTTP ${gamesRes.status}`);
       const freshGames: Game[] = await gamesRes.json();
 
-      // ── 4. Merge user metadata từ cache (is_hidden, is_favorite, note) ──────
-      const mergedGames = cachedGames
-        ? (() => {
-            const cachedMap = new Map(cachedGames.map((g) => [g.game_id || g.name, g]));
-            return freshGames.map((g) => {
-              const old = cachedMap.get(g.game_id || g.name);
-              if (!old) return g;
-              return {
-                ...g,
-                ...(old.is_hidden   ? { is_hidden: true }   : {}),
-                ...(old.is_favorite ? { is_favorite: true } : {}),
-                ...(old.note        ? { note: old.note }    : {}),
-              };
-            });
-          })()
-        : freshGames;
+      // ── 2. Đọc user metadata cache (nhẹ, chỉ vài KB) ─────────────────────
+      const userMeta = await cacheReadUserMeta();
 
-      await Promise.all([
-        cacheWriteHash(remoteHash),
-        cacheWriteGames(mergedGames),
-      ]);
+      // ── 3. Merge user metadata lên fresh games ────────────────────────────
+      allGames = userMeta ? applyUserMeta(freshGames, userMeta) : freshGames;
 
-      allGames = mergedGames;
+      // ── 4. Fetch + lưu version hash (cho tương lai nếu cần) ───────────────
+      try {
+        const versionRes = await fetch(VERSION_JSON_URL, { cache: "no-cache" });
+        if (versionRes.ok) {
+          const versionData: { hash: string } = await versionRes.json();
+          cacheWriteHash(versionData.hash);
+        }
+      } catch {
+        // Không ảnh hưởng — hash chỉ là metadata phụ
+      }
 
     } catch (e) {
       console.error("Fetch error:", e);
-      const cachedGames = await cacheReadGames();
-      if (cachedGames) {
-        allGames  = cachedGames;
-        loadError = `Không thể cập nhật (đang dùng cache): ${e}`;
-      } else {
-        loadError = `Không thể tải dữ liệu: ${e}`;
-      }
+      loadError = `Không thể tải dữ liệu: ${e}`;
     } finally {
       isLoading = false;
     }
@@ -516,6 +526,7 @@ function createGameStore() {
     getYoutubeEmbedUrl,
     fetchGames,
     selectGame,
+    navigateGame,
     closePanel,
     clearFilters,
     toggleHide,

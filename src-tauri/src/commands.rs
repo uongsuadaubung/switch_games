@@ -3,8 +3,8 @@ use tauri_plugin_opener::OpenerExt;
 use std::fs;
 use std::path::PathBuf;
 
-const CACHE_FILE: &str = "games.json";
-const HASH_FILE:  &str = "version_hash.txt";
+const USER_META_FILE: &str = "user_meta.json";
+const HASH_FILE:      &str = "version_hash.txt";
 
 /// Trả về app data dir (tạo nếu chưa có)
 fn get_app_data_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -40,26 +40,26 @@ pub async fn open_urls(app: tauri::AppHandle, urls: Vec<String>) -> Result<(), S
     Ok(())
 }
 
-// ── Cache: đọc/ghi games JSON ────────────────────────────────────────────────
+// ── Cache: đọc/ghi user metadata JSON ───────────────────────────────────────
 
-/// Đọc games cache từ disk, trả về JSON string hoặc null nếu chưa có
+/// Đọc user metadata cache từ disk, trả về JSON string hoặc null nếu chưa có
 #[tauri::command]
-pub async fn read_games_cache(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    let path = get_app_data_dir(&app)?.join(CACHE_FILE);
+pub async fn read_user_meta(app: tauri::AppHandle) -> Result<Option<String>, String> {
+    let path = get_app_data_dir(&app)?.join(USER_META_FILE);
     if !path.exists() {
         return Ok(None);
     }
     let content = fs::read_to_string(&path)
-        .map_err(|e| format!("Không đọc được cache: {e}"))?;
+        .map_err(|e| format!("Không đọc được user meta cache: {e}"))?;
     Ok(Some(content))
 }
 
-/// Ghi games JSON string ra cache file trên disk
+/// Ghi user metadata JSON string ra cache file trên disk
 #[tauri::command]
-pub async fn write_games_cache(app: tauri::AppHandle, data: String) -> Result<(), String> {
-    let path = get_app_data_dir(&app)?.join(CACHE_FILE);
+pub async fn write_user_meta(app: tauri::AppHandle, data: String) -> Result<(), String> {
+    let path = get_app_data_dir(&app)?.join(USER_META_FILE);
     fs::write(&path, data.as_bytes())
-        .map_err(|e| format!("Không ghi được cache: {e}"))?;
+        .map_err(|e| format!("Không ghi được user meta cache: {e}"))?;
     Ok(())
 }
 

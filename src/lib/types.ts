@@ -4,6 +4,19 @@ export interface GameLink {
   url: string;
 }
 
+/**
+ * User metadata — chỉ chứa các field do app quản lý.
+ * Đây là dữ liệu được cache (nhẹ), phần còn lại luôn fetch từ API.
+ */
+export interface UserGameMeta {
+  is_hidden?: boolean;
+  is_favorite?: boolean;
+  note?: string;
+}
+
+/** Map game_id → UserGameMeta, dùng cho cache */
+export type UserMetaMap = Record<string, UserGameMeta>;
+
 export interface Game {
   name: string;
   game_id: string;
@@ -20,8 +33,6 @@ export interface Game {
   size: string;
   genres: string[];
   review_url: string;
-  /** Ngày thêm vào data */
-  added_at?: string;
   links: GameLink[];
   required_firmware: string;
 }

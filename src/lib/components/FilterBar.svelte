@@ -66,16 +66,6 @@
       </button>
     {/if}
 
-    {#if store.hiddenCount > 0}
-      <button
-        class="filter-toggle hidden-filter"
-        class:active={store.filterHidden}
-        onclick={() => (store.filterHidden = !store.filterHidden)}
-      >
-        🚫 Đã ẩn ({store.hiddenCount})
-      </button>
-    {/if}
-
     {#if store.newGameCount > 0}
       <button
         class="filter-toggle new-filter"
@@ -86,14 +76,33 @@
       </button>
     {/if}
 
-    {#if store.favoriteCount > 0}
-      <button
-        class="filter-toggle fav-filter"
-        class:active={store.filterFavorite}
-        onclick={() => (store.filterFavorite = !store.filterFavorite)}
-      >
-        ❤ Yêu thích ({store.favoriteCount})
-      </button>
+    {#if store.hiddenCount > 0 || store.favoriteCount > 0}
+      <div class="filter-group">
+        {#if store.favoriteCount > 0}
+          <button
+            class="filter-toggle fav-filter"
+            class:active={store.filterFavorite}
+            onclick={() => {
+              store.filterFavorite = !store.filterFavorite;
+              if (store.filterFavorite) store.filterHidden = false;
+            }}
+          >
+            ❤ Yêu thích ({store.favoriteCount})
+          </button>
+        {/if}
+        {#if store.hiddenCount > 0}
+          <button
+            class="filter-toggle hidden-filter"
+            class:active={store.filterHidden}
+            onclick={() => {
+              store.filterHidden = !store.filterHidden;
+              if (store.filterHidden) store.filterFavorite = false;
+            }}
+          >
+            🚫 Đã ẩn ({store.hiddenCount})
+          </button>
+        {/if}
+      </div>
     {/if}
 
     {#if store.searchQuery || store.filterVietHoa || store.filterGenre !== "all" || store.filterHidden || store.filterNew || store.filterFavorite}
@@ -247,6 +256,20 @@
     &:focus { border-color: var(--accent); outline: none; }
   }
 
+  // ── Segmented control: Đã ẩn / Yêu thích ──────────────────────────────────
+  .filter-group {
+    display: flex;
+    // Nút bên trong dùng chung border, không có gap
+    .filter-toggle {
+      border-radius: 0;
+      border-right-width: 0; // tránh double border ở giữa
+
+      &:first-child { border-radius: 8px 0 0 8px; }
+      &:last-child  { border-radius: 0 8px 8px 0; border-right-width: 1px; }
+      &:only-child  { border-radius: 8px; border-right-width: 1px; }
+    }
+  }
+
   .filter-toggle {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -258,7 +281,7 @@
 
     &:hover { border-color: var(--accent); color: var(--text-primary); }
     &.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-    &.hidden-filter.active { background: var(--muted-dim-md); border-color: var(--muted-border); color: var(--text-secondary); }
+    &.hidden-filter.active { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); font-weight: 600; }
   }
 
   .new-filter {

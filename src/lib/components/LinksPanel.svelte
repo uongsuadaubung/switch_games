@@ -70,25 +70,29 @@
           {store.showYoutube ? "✕ Đóng Review" : "▶ Xem Review"}
         </button>
       {/if}
-      <button
-        class="btn-hide"
-        class:active={game.is_hidden}
-        onclick={() => {
-          store.toggleHide(game);
-          if (!game.is_hidden) store.closePanel(); // is_hidden sẽ thành true sau toggle
-        }}
-        title={game.is_hidden ? "Bỏ ẩn game này" : "Ẩn game này"}
-      >
-        {game.is_hidden ? "👁 Bỏ ẩn" : "🚫 Ẩn"}
-      </button>
-      <button
-        class="btn-favorite"
-        class:active={game.is_favorite}
-        onclick={() => store.toggleFavorite(game)}
-        title={game.is_favorite ? "Bỏ yêu thích" : "Đánh dấu yêu thích"}
-      >
-        {game.is_favorite ? "❤️ Yêu thích" : "🤍 Yêu thích"}
-      </button>
+      {#if !store.filterFavorite}
+        <button
+          class="btn-hide"
+          class:active={game.is_hidden}
+          onclick={() => {
+            store.toggleHide(game);
+            if (!game.is_hidden) store.closePanel(); // is_hidden sẽ thành true sau toggle
+          }}
+          title={game.is_hidden ? "Bỏ ẩn game này" : "Ẩn game này"}
+        >
+          {game.is_hidden ? "👁 Bỏ ẩn" : "🚫 Ẩn"}
+        </button>
+      {/if}
+      {#if !store.filterHidden}
+        <button
+          class="btn-favorite"
+          class:active={game.is_favorite}
+          onclick={() => store.toggleFavorite(game)}
+          title={game.is_favorite ? "Bỏ yêu thích" : "Đánh dấu yêu thích"}
+        >
+          {game.is_favorite ? "❤️ Yêu thích" : "🤍 Yêu thích"}
+        </button>
+      {/if}
     </div>
 
     <!-- ── Ghi chú cá nhân ── -->
@@ -131,10 +135,12 @@
             {/if}
           </div>
           <div class="link-actions">
-            <button
-              class="btn-open-link"
-              onclick={() => store.openUrl(link.url)}>Mở</button
-            >
+            {#if link.url}
+              <button
+                class="btn-open-link"
+                onclick={() => store.openUrl(link.url)}>Mở</button
+              >
+            {/if}
           </div>
         </div>
       {/each}

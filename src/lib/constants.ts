@@ -18,15 +18,15 @@ export const GITHUB_RELEASES_URL = `https://github.com/${APP_REPO}/releases`;
 
 // ── Tauri command names ───────────────────────────────────────────────────────
 
-export const CMD_READ_VERSION_HASH = "read_version_hash";
+export const CMD_READ_VERSION_HASH  = "read_version_hash";
 export const CMD_WRITE_VERSION_HASH = "write_version_hash";
-export const CMD_READ_GAMES_CACHE  = "read_games_cache";
-export const CMD_WRITE_GAMES_CACHE = "write_games_cache";
-export const CMD_OPEN_URL          = "open_url";
-export const CMD_OPEN_URLS         = "open_urls";
+export const CMD_READ_USER_META     = "read_user_meta";
+export const CMD_WRITE_USER_META    = "write_user_meta";
+export const CMD_OPEN_URL           = "open_url";
+export const CMD_OPEN_URLS          = "open_urls";
 
 // ── localStorage keys ────────────────────────────────────────────────────────
 
 export const STORAGE_VIEW_MODE    = "switch_games_view_mode";
 export const STORAGE_VERSION_HASH = "switch_games_version_hash";
-export const STORAGE_GAMES_CACHE  = "switch_games_games_cache";
+export const STORAGE_USER_META    = "switch_games_user_meta";

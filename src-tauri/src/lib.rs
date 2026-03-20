@@ -2,7 +2,7 @@ pub mod commands;
 
 use commands::{
     open_url, open_urls,
-    read_games_cache, write_games_cache,
+    read_user_meta, write_user_meta,
     read_version_hash, write_version_hash,
 };
 
@@ -13,8 +13,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             open_url,
             open_urls,
-            read_games_cache,
-            write_games_cache,
+            read_user_meta,
+            write_user_meta,
             read_version_hash,
             write_version_hash,
         ])
